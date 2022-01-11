@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./app.js",
+    "test": "mocha tests/*.test.js --exit"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
@@ -18,6 +19,7 @@
     "morgan": "~1.9.1",
     "nodemon": "^2.0.15",
     "pg": "^8.7.1",
+    "request": "^2.88.2",
     "supertest": "^6.2.0"
   }
 }
