@@ -3,13 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./app.js",
+    "start": "nodemon ./app.js",
     "test": "mocha tests/*.test.js --exit"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-node8": "^1.2.0",
     "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
