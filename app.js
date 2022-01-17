@@ -45,6 +45,10 @@ app.use((error, req, res, next) => {
         message = error.message || "Internal server error";
     }
 
+    // Output the error to the log
+    console.log({ "status": statusCode, "message": message });
+
+    // Send the error back to the callin script
     res.status(statusCode).json({
         error: {
             status: statusCode,
@@ -55,8 +59,8 @@ app.use((error, req, res, next) => {
 });
 
 // Set the app to listen on the required port and then export the server
-const server = app.listen(3000, () => {
-    console.log('App listening on port 3000')
+app.listen(3000, () => {
+    console.log('server backend started');
 })
 
-module.exports = server;
+module.exports = app;
