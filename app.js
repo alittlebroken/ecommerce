@@ -1,4 +1,7 @@
-var express = require('express')
+// Load and configure the env file
+require('dotenv').config()
+
+let express = require('express')
 
 // Import the routes for the app
 const dbTest = require('./routes/db_test.js')
