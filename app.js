@@ -39,22 +39,19 @@ app.use((error, req, res, next) => {
     // Check for DB related error messages
     if(error.code == 23505){
         statusCode = 400;
-        message = "The requested data could not be added due to violating uniquness rules";
+        message = "Unable to add record as the data supplied violates uniqueness rules.";
     } else {
         statusCode = error.status || 500;
         message = error.message || "Internal server error";
     }
 
     // Output the error to the log
-    console.log({ "status": statusCode, "message": message });
+    //console.log({ "status": statusCode, "message": message });
 
     // Send the error back to the callin script
     res.status(statusCode).json({
-        error: {
-            status: statusCode,
-            dbErrorCode: error.code,
-            message: message,
-        }
+        status: statusCode,
+        message: message,
     });
 });
 
