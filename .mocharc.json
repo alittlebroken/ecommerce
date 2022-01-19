@@ -1,0 +1,6 @@
+{
+    "file": [
+        "./tests/setup-db.js",
+        "./tests/teardown-db.js",
+    ],
+}
