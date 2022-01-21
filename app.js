@@ -45,9 +45,6 @@ app.use((error, req, res, next) => {
         message = error.message || "Internal server error";
     }
 
-    // Output the error to the log
-    //console.log({ "status": statusCode, "message": message });
-
     // Send the error back to the callin script
     res.status(statusCode).json({
         status: statusCode,
