@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./app.js",
-    "test": "mocha tests/*.test.js --exit"
+    "test": "mocha --timeout 10000 tests/*.test.js --exit"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
