@@ -1,7 +1,7 @@
 // Load env vars
 require('dotenv').config();
 
-const { Pool } = require('pg')
+const { Pool, Client } = require('pg')
 
 const pool = new Pool({
     user: process.env.DBUSER,
@@ -14,12 +14,17 @@ const pool = new Pool({
 // Exports
 module.exports = {
     pool,
-    query: async (text, params, callback) => {
-        const start = Date.now();
-        return await pool.query(text, params, (err, res) => {
-            const duration = Date.now() - start;
-            console.log('Executed query', {text, duration, rows: res.rowCount})
-            callback(err, res);
-        });
+    query: async (text, params) => {
+        return await pool.query(text, params);
     },
+    // Clean out a table of all records, useful for clearing out testing data
+    cleanTable: async (table_name, callback) => {
+        // Only run if we have a table_name set
+        if(!table_name){
+            console.log({message: "You must provide a table name to delete from"})
+        } else {
+            await pool.query("DELETE FROM " + table_name);
+        }
+    },
+
 };

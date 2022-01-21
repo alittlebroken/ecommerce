@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./app.js",
-    "test": "mocha tests/*.test.js --exit"
+    "test": "mocha --timeout 10000 tests/*.test.js --exit"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
@@ -21,6 +21,7 @@
     "morgan": "~1.9.1",
     "nodemon": "^2.0.15",
     "pg": "^8.7.1",
+    "pg-format": "^1.0.4",
     "request": "^2.88.2",
     "supertest": "^6.2.0"
   }
