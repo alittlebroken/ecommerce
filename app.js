@@ -44,6 +44,9 @@ app.use((error, req, res, next) => {
     if(error.code == 23505){
         statusCode = 400;
         message = "Unable to add record as the data supplied violates uniqueness rules.";
+    } else if(error.code == 23503) {
+        statusCode = 400;
+        message = "Unable to add record as the data supplied violates foreign key rules.";
     } else {
         statusCode = error.status || 500;
         message = error.message || "Internal server error";
