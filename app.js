@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRouter);
 
 // Let the app know about the carts routes
-app.user('/carts', cartRouter);
+app.use('/carts', cartRouter);
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
