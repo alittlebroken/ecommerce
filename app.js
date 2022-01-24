@@ -5,6 +5,7 @@ let express = require('express')
 
 // Import the routes for the app
 const userRouter = require('./routes/users')
+const cartRouter = require('./routes/carts')
 
 // Create the express app server
 var app = express()
@@ -22,6 +23,9 @@ app.get('/', (req, res) => {
 
 // Set the app to know about the routers and a ssign a specific URI enpoint for them
 app.use('/users', userRouter);
+
+// Let the app know about the carts routes
+app.user('/carts', cartRouter);
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
