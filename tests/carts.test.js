@@ -5,8 +5,10 @@ const app = require ('../app')
 
 const db = require('../db/db')
 
-// Get the test setup data
-require('./setup.js')
+// require any helper models
+const userModel = require('../models/user')
+const cartModel = require('../models/carts')
+const productModel = require('../models/products')
 
 // Add plugins for chai
 chai.use(chai_http)
@@ -15,11 +17,13 @@ describe('CARTS', () => {
 
     describe('POST to /carts', () => {
 
-        xit('Creates a cart for the user, returns cart id and status 201', async (done) => {
+        it('Creates a cart for the user, returns cart id and status 201', async () => {
             
             // generate the data to be sent
+            const rows = await db.query("SELECT user_id FROM users WHERE email = $1;", ['littleted@ursine.com']);
+
             const data = {
-                "userId": 1
+                "userId": rows.rows[0].user_id
             };
 
             chai.request(app)
@@ -29,18 +33,21 @@ describe('CARTS', () => {
              .send(data)
              .end((err, res) => {
                  if(err) done(err);
-
-                 assert.equal(res.statusCode(201));
-                 assert.isNotEmpty(res.body.cartId);
-                 done();
+                 
+                 assert.equal(res.statusCode, 201);
+                 assert.isNotEmpty(res.body);
+                 assert.isNumber(res.body.cart_id);
+                 
              })
         });
 
-        xit('returns status 400 when trying to create a cart that already exists', async (done) => {
+        it('returns status 400 when trying to create a cart that already exists', async () => {
 
-            // generate the data to send
-            const data = { 
-                "userId": 1
+            // generate the data to be sent
+            const rows = await db.query("SELECT user_id FROM users WHERE email = $1;", ['littleted@ursine.com']);
+
+            const data = {
+                "userId": rows.rows[0].user_id
             };
 
             // Send the data and test the result
@@ -51,14 +58,14 @@ describe('CARTS', () => {
              .send(data)
              .end((err, res) => {
                  if(err) done(err);
-                 
+                                 
                  assert.equal(res.statusCode, 400);
-                 done();
+                
              })
 
         });
 
-        xit('returns 404 when no infomation is supplied with request', async (done) => {
+        it('returns 404 when no infomation is supplied with request', async () => {
 
             // Send the data and test the rsult
             chai.request(app)
@@ -68,9 +75,9 @@ describe('CARTS', () => {
              .send()
              .end((err, res) => {
                  if(err) done(err);
-
+                 
                  assert.equal(res.statusCode, 404);
-                 done();
+                 
              })
 
         });
@@ -79,18 +86,23 @@ describe('CARTS', () => {
 
     describe('POST to /carts/:cartid', () => {
 
-        xit('Adds an item to the cart and returns 201', async (done) => {
+        it('Adds an item to the cart and returns 201', async () => {
+
+            // Get the cart for the user
+            const userData = await db.query("SELECT user_id FROM users WHERE email = $1;", ['littleted@ursine.com']);
+            const cartData = await db.query("SELECT cart_id FROM carts WHERE user_id = $1;", [userData.rows[0].user_id]);
+            const prodData = await db.query("SELECT product_id FROM products where name = $1;", ['Bilge Waters']);
 
             // Create the payload to send
             const data = {
                 "items": [{
-                    "productId": 1,
+                    "productId": prodData.rows[0].product_id,
                 }]
             };
 
             // Send the data and check the result
             chai.request(app)
-             .post('/carts/1')
+             .post(`/carts/${cartData.rows[0].cart_id}`)
              .type('application/json')
              .set('Accept', 'application/json')
              .send(data)
@@ -98,12 +110,11 @@ describe('CARTS', () => {
                  if(err) done(err);
 
                  assert.equal(res.statusCode, 201);
-                 done();
              })
 
         });
 
-        xit('returns 404 if request data is missing', async (done) => {
+        it('returns 404 if request data is missing', async () => {
 
             /// POST to the route and check the result back
             chai.request(app)
@@ -115,7 +126,7 @@ describe('CARTS', () => {
                  if(err) done(err);
 
                  assert.equal(res.statusCode, 404);
-                 done();
+
              })
 
         });
@@ -124,7 +135,7 @@ describe('CARTS', () => {
 
     describe('GET to /carts', () => {
 
-        xit('returns all carts with status of 200', async (done) => {
+        it('returns all carts with status of 200', async () => {
 
             // GET to the route and check the result
             chai.request(app)
@@ -134,56 +145,54 @@ describe('CARTS', () => {
 
                  assert.equal(res.statusCode, 200);
                  assert.isArray(res.body);
-                 assert.equal(res.body.length, 2);
-                 done();
+                 assert.equal(res.body.length, 4);
+                 
              })
 
         });
 
-        xit('returns 404 if no carts exist', async (done) => {
-
-            // GET to carts and check the result
-            chai.request(app)
-             .get('/carts')
-             .end((err, res) => {
-                if(err) done(err);
-
-                assert.equal(res.statusCode, 404);
-                done(err);
-             })
-
-        });
-
-    })
+    });
 
     describe ('GET to /carts/:cartid', () => {
 
-        xit('returns a valid cart and contents and status 200', async (done) => {
+        it('returns a valid cart and contents and status 200', async () => {
+
+            // Query to get a valid cart ID from the DB
+            const query = "SELECT c.cart_id FROM carts c INNER JOIN users u ON c.user_id = u.user_id WHERE email = $1;";
+
+            // Values to use with the query
+            const values = ['dingle@gherts.com'];
+
+            // Run the query to get the data we need for the test
+            const response = await db.query(query, values);
+            
+            // get the cart id
+            const cart_id = response.rows[0].cart_id;
 
             // Run the test and check the result
+            chai.request(app)
+             .get(`/carts/${cart_id}`)
+             .end((err, res) => {
+                 if(err) done(err);
+                 
+                 assert.equal(res.statusCode, 200);
+                 assert.isArray(res.body);
+                 assert.equal(res.body.length, 4);
+                 
+             })
+
+        });
+
+        it('returns 404 if the cart is not found', async () => {
+
+            // Run the testand check the result
             chai.request(app)
              .get('/carts/1')
              .end((err, res) => {
                  if(err) done(err);
-
-                 assert.equal(res.statusCode, 200);
-                 assert.isArray(res.body);
-                 assert.equal(res.body.length, 2);
-                 done();
-             })
-
-        });
-
-        xit('returns 404 if the cart is not found', async (done) => {
-
-            // Run the testand check the result
-            chai.request(app)
-             .get('/carts/2')
-             .end((err, res) => {
-                 if(err) done(err);
-
+                 
                  assert.equal(res.statusCode, 404);
-                 done();
+                 
              })
 
         });
@@ -192,31 +201,114 @@ describe('CARTS', () => {
 
     describe('PUT to /carts/:cartid/items/:itemid', () => {
 
-        xit('update item with status 200', async (done) => {
+        it('update item and returns status 200 and updated list item', async () => {
 
             // Data to update in cart
             const data = {
-                "update_col": "quantity",
-                "update_val": 2
+                quantity: 2
             };
+
+            // Get the user we wish to use for the test
+            let userData;
+            try{
+                userData = await userModel.findByEmail('dingle@gherts.com');
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Get the cart ID for the user we have chosen for this test
+            let cartData;
+            try{
+                cartData = await cartModel.findByUser(userData.user_id);
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Get an item to update
+            let itemData;
+            try{
+                itemData = await productModel.findByName({ name: 'Bilge Waters' });
+            } catch(err) {
+                throw new Error(err);
+            }
 
             // Run the test and check the result
             chai.request(app)
-             .put('/carts/1/items/1')
+             .put(`/carts/${cartData.cart_id}/items/${itemData.product_id}`)
              .type('application/json')
              .set('Accept', 'application.json')
              .send(data)
              .end((err, res) => {
-                 if(done) done(err);
-
+                if(err) done(err);
+                 
                  assert.equal(res.statusCode, 200);
-                 assert
-                 done();
-             })
+                 assert.equal(res.body.cart_id, cartData.cart_id);
+                 assert.equal(res.body.product_id, itemData.product_id);
+                 assert.equal(res.body.quantity, 2);
+             });
 
         });
 
-        xit('returns 404 with missing or incorrect information', async (done) => {
+        it('removes an item from the cart if quantity is set to 0', async () => {
+
+            // Data to update in cart
+            const data = {
+                quantity: 0
+            };
+
+            // Get the user we wish to use for the test
+            let userData;
+            try{
+                userData = await userModel.findByEmail('dingle@gherts.com');
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Get the cart ID for the user we have chosen for this test
+            let cartData;
+            try{
+                cartData = await cartModel.findByUser(userData.user_id);
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Get an item to update
+            let itemData;
+            try{
+                itemData = await productModel.findByName({ name: 'Bilge Waters' });
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            
+            // Run the test and check the result
+            chai.request(app)
+             .put(`/carts/${cartData.cart_id}/items/${itemData.product_id}`)
+             .type('application/json')
+             .set('Accept', 'application.json')
+             .send(data)
+             .end((err, res) => {
+                 if(err) done(err);
+                 
+                 assert.equal(res.statusCode, 200);
+                 assert.equal(res.body.cart_id, cartData.cart_id);
+                 assert.equal(res.body.product_id, itemData.product_id);
+             });
+
+             // Now check the item has gone from the cart
+             chai.request(app)
+              .get(`/carts/${cartData.cart_id}`)
+              .end((err, res) => {
+                if(err) done(err);
+                
+                assert.equal(res.statusCode, 200);
+                assert.isArray(res.body);
+                assert.equal(res.body.length, 3);
+              });
+
+        });
+
+        it('returns 404 with missing or incorrect information', async () => {
 
             // Run the test and check the result
             chai.request(app)
@@ -226,8 +318,8 @@ describe('CARTS', () => {
              .end((err, res) => {
                  if(err) done(err);
 
-                 accept.equal(res.statusCode, 404);
-                 done(err);
+                 assert.equal(res.statusCode, 404);
+                 
              })
 
         });
@@ -236,30 +328,71 @@ describe('CARTS', () => {
 
     describe('DELETE to /carts/:cartid', () => {
 
-        xit('empties cart and returns status 200', async (done) => {
+        it('empties cart and returns status 200', async () => {
+
+            // Get the user we wish to use for the test
+            let userData;
+            try{
+                userData = await userModel.findByEmail('sfringle@corpbuster.com');
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Get the cart ID for the user we have chosen for this test
+            let cartData;
+            try{
+                cartData = await cartModel.findByUser(userData.user_id);
+            } catch(err) {
+                throw new Error(err);
+            }
+
 
             // run the test and check the results
             chai.request(app)
-             .delete('/carts/1')
+             .delete(`/carts/${cartData.cart_id}`)
              .end((err, res) => {
                  if(err) done(err);
 
                  assert.equal(res.statusCode, 200);
-                 done();
-             })
+             });
+
+             // check that the specified user now has zero cart items
+             chai.request(app)
+              .get(`/carts/${cartData.cart_id}`)
+              .end((err, res) => {
+                  if(err) done(err);
+
+                  assert.equal(res.statusCode, 404);
+              });
 
         });
 
-        xit('returns 404 if information is missing or incorrect', async (done) => {
+        it('returns 404 if information is missing or incorrect', async () => {
+
+            // Get the user we wish to use for the test
+            let userData;
+            try{
+                userData = await userModel.findByEmail('sfringle@corpbuster.com');
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Get the cart ID for the user we have chosen for this test
+            let cartData;
+            try{
+                cartData = await cartModel.findByUser(userData.user_id);
+            } catch(err) {
+                throw new Error(err);
+            }
 
             // Run the test and check results
             chai.request(app)
-             .delete('/carts/two')
+             .delete(`/carts/${cartData.cart_id}`)
              .end((err, res) => {
                  if(err) done(err);
 
                  assert.equal(res.statusCode, 404);
-                 done();
+                 
              })
 
         });
@@ -268,30 +401,81 @@ describe('CARTS', () => {
 
     describe('DELETE to /carts/:cartid/items/:itemid', () => {
 
-        xit('removes item and returns status 200' , async (done) => {
+        it('removes item and returns status 200' , async () => {
+
+            // Get a user with lots of cart contents
+            let userData;
+            try{
+                userData = await userModel.findByEmail('dingle@gherts.com');
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Get the cart ID for the user we have chosen for this test
+            let cartData;
+            try{
+                cartData = await cartModel.findByUser(userData.user_id);
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Get an item to update
+            let itemData;
+            try{
+                itemData = await productModel.findByName({ name: 'The art of coding' });
+            } catch(err) {
+                throw new Error(err);
+            }
 
             // Run the test and check the results
             chai.request(app)
-             .delete('/carts/1/items/2')
+             .delete(`/carts/${cartData.cart_id}/items/${itemData.product_id}`)
              .end((err, res) => {
-                 if(err) done(err);
+                if(err) done(err);
+                
+                assert.equal(res.statusCode, 200);
+                assert.equal(res.body.cart_id, cartData.cart_id);
+                assert.equal(res.body.product_id, itemData.product_id);
+            });
 
-                 assert.equal(res.statusCode, 200);
-                 done();
-             })
+            // Now check the item has gone from the cart
+            chai.request(app)
+             .get(`/carts/${cartData.cart_id}`)
+             .end((err, res) => {
+               if(err) done(err);
+               
+               assert.equal(res.statusCode, 200);
+               assert.isArray(res.body);
+               assert.equal(res.body.length, 2);
+             });
 
         });
 
-        xit('returns 404 if item does not exist', async (done) => {
+        it('returns 404 if item does not exist', async () => {
+
+            // Get a user with lots of cart contents
+            let userData;
+            try{
+                userData = await userModel.findByEmail('dingle@gherts.com');
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Get the cart ID for the user we have chosen for this test
+            let cartData;
+            try{
+                cartData = await cartModel.findByUser(userData.user_id);
+            } catch(err) {
+                throw new Error(err);
+            }
 
             // run the test and check the result
             chai.request(app)
-             .delete('/carts/1/items/3')
+             .delete(`/carts/${cartData.cart_id}/items/1`)
              .end((err, res) => {
                  if(err) done(err);
 
-                 assert.equal(404);
-                 done();
+                 assert.equal(res.statusCode, 404);
              })
 
         });
