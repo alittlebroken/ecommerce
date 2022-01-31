@@ -6,9 +6,6 @@ const app = require ('../app')
 
 const db = require('../db/db')
 
-// Get the test setup data
-require('./setup.js')
-
 // Add plugins for chai
 chai.use(chai_http)
 
