@@ -9,6 +9,9 @@ const db = require('../db/db')
 // Include the products Model
 const productModel = require('../models/products')
 
+// Add plugins for chai
+chai.use(chai_http)
+
 describe('PRODUCTS', () => {
 
     describe('POST to /products', () => {
@@ -32,10 +35,8 @@ describe('PRODUCTS', () => {
              .send(postData)
              .end((err, res) => {
                  if(err) done(err);
-
+                 
                  assert.equal(res.statusCode, 201);
-                 // We should only have 1 product sent back
-                 assert.equal(res.body.length, 1);
                  // Check that the data sent back matches the original data
                  assert.equal(res.body.name, postData.name);
                  assert.equal(res.body.description, postData.description);
@@ -46,7 +47,7 @@ describe('PRODUCTS', () => {
 
         });
 
-        it('fails with status 400 when sent with no data', async () => {
+        it('fails with status 404 when sent with no data', async () => {
 
             // POST to the route with no data
             chai.request(app)
@@ -57,7 +58,7 @@ describe('PRODUCTS', () => {
              .end((err, res) => {
                  if(err) done(err);
 
-                 assert.equal(res.statusCode(400));
+                 assert.equal(res.statusCode,404);
              });
 
         });
@@ -81,8 +82,8 @@ describe('PRODUCTS', () => {
              .send(postData)
              .end((err, res) => {
                  if(err) done(err);
-
-                 assert.equal(400);
+                 
+                 assert.equal(res.statusCode, 400);
              });
 
         });
@@ -98,25 +99,11 @@ describe('PRODUCTS', () => {
               .get('/products')
               .end((err, res) => {
                   if(err) done(err);
-
+                  
                   assert.equal(res.statusCode, 200);
                   assert.isArray(res.body);
-                  assert.equal(res.body.length, 9)
-
+                  assert.equal(res.body.length, 9);
               });
-
-        });
-
-        it('returns 404 if no products are found', async () => {
-
-            // Get the nonexistant products
-            chai.request(app)
-             .get('/products')
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode, 404);
-             });
 
         });
 
@@ -129,7 +116,7 @@ describe('PRODUCTS', () => {
             // Get an ID to search
             let prodId;
             try{
-                const result = await productModel.findByName('Iron Man 4: Iron Harder');
+                const result = await productModel.findByName({ "name": 'Iron Man 4: Iron Harder'});
 
                 if(result){
                     prodId = result.product_id;
@@ -144,9 +131,8 @@ describe('PRODUCTS', () => {
              .get(`/products/${prodId}`)
              .end((err, res) => {
                  if(err) done(err);
-
                  assert.equal(res.statusCode, 200);
-                 assert.equal(res.body.length, 1);
+                 assert.exists(res.body.product_id);
                  
                  // check the details are correct
                  // Check that the data sent back matches the original data
@@ -162,9 +148,12 @@ describe('PRODUCTS', () => {
 
         it('returns status 404 when supplied with no identifier', async () => {
 
+            // set a non existant product id
+            let prodId;
+
             // Perform the get
             chai.request(app)
-             .get('/products/')
+             .get(`/products/${prodId}`)
              .end((err, res) => {
                  if(err) done(err);
 
@@ -193,7 +182,7 @@ describe('PRODUCTS', () => {
             // Get the ID of a product to update
             let prodId;
             try{
-                const result = await productModel.findByName('Iron Man 4: Iron Harder');
+                const result = await productModel.findByName({ "name": 'Iron Man 4: Iron Harder'});
 
                 if(result){
                     prodId = result.product_id;
@@ -220,7 +209,6 @@ describe('PRODUCTS', () => {
             .send(productUpdate)
             .end((err, res) => {
                 if(err) done(err);
-
                 assert.equal(res.statusCode, 200);
                 // Check values sent back match the update sent
                 assert.equal(res.body.name, productUpdate.name);
@@ -234,7 +222,7 @@ describe('PRODUCTS', () => {
         it('returns 404 if the product is not found', async () => {
 
             // Set the non existant product ID
-            const product_id = 56478209348;
+            const product_id = 5647820;
 
             // Now set the data to be updated
             const productUpdate = {
@@ -253,38 +241,8 @@ describe('PRODUCTS', () => {
              .send(productUpdate)
              .end((err, res) => {
                  if(err) done(err);
-
                  assert.equal(res.statusCode, 404);
 
-             });
-
-        });
-
-        it('returns 400 if supplied with incorrect product id', async () => {
-
-            // Set the non existant product ID
-            const product_id = null;
-
-            // Now set the data to be updated
-            const productUpdate = {
-                "name": "Iron Man 4: Iron Harder",
-                "description": "Iron Man faces off against his toughest opponent, household chores.",
-                "price": 13.99,
-                "image_url": null,
-                "in_stock": false
-            };
-
-            // Test the update and check the results
-            chai.request(app)
-             .put(`/products/${product_id}`)
-             .type('application/json')
-             .set('Accept', 'application/json')
-             .send(productUpdate)
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode, 400);
-                 
              });
 
         });
@@ -298,7 +256,7 @@ describe('PRODUCTS', () => {
             // Get the ID of the product we wish to delete
             let prodId;
             try{
-                const result = await productModel.findByName('Iron Man 4: Iron Harder');
+                const result = await productModel.findByName({ "name": 'Iron Man 4: Iron Harder'});
                 if(result){
                     prodId = result.product_id;
                 }
@@ -340,7 +298,7 @@ describe('PRODUCTS', () => {
         it('returns status 404 if a record to be deleted cant be found', async () => {
 
             // set the product id
-            const prodId = 324804582032354;
+            const prodId = 324804;
 
             // Now run the test and check the result
             chai.request(app)
@@ -348,35 +306,8 @@ describe('PRODUCTS', () => {
              .end((err, res) => {
                  if(err) done(err);
 
-                 assert.equal(404);
+                 assert.equal(res.statusCode, 404);
              });
-
-        });
-
-    });
-
-    describe('DELETE to /products', () => {
-
-        it('removes all products and retruns status 200 and 0 records', async() => {
-
-            // run the delete
-            chai.request(app)
-             .delete('/products')
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode, 200);
-             });
-
-             // check we have zero records 
-             chai.request(app)
-              .get('/products')
-              .end((err, res) => {
-                  if(err) done(err);
-
-                  assert.equal(res.statusCode, 200);
-                  assert.equal(res.body.length, 0);
-              });
 
         });
 
