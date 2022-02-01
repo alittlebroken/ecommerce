@@ -10,8 +10,7 @@ module.exports  = class userModel {
 
             // Try to get the users
             const result = db.query("SELECT * FROM users",'',(err,res) =>{});
-            
-            console.log(result)
+        
 
             // Check we have some records
             if(result.rows.length){

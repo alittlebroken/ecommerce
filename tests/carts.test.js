@@ -436,18 +436,18 @@ describe('CARTS', () => {
                 assert.equal(res.statusCode, 200);
                 assert.equal(res.body.cart_id, cartData.cart_id);
                 assert.equal(res.body.product_id, itemData.product_id);
-            });
 
-            // Now check the item has gone from the cart
-            chai.request(app)
-             .get(`/carts/${cartData.cart_id}`)
-             .end((err, res) => {
-               if(err) done(err);
-               
-               assert.equal(res.statusCode, 200);
-               assert.isArray(res.body);
-               assert.equal(res.body.length, 2);
-             });
+                // Now check the item has gone from the cart
+                chai.request(app)
+                .get(`/carts/${cartData.cart_id}`)
+                .end((err, res) => {
+                if(err) done(err);
+                
+                assert.equal(res.statusCode, 200);
+                assert.isArray(res.body);
+                assert.equal(res.body.length, 2);
+                });
+            });
 
         });
 

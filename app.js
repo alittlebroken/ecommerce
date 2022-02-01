@@ -6,6 +6,7 @@ let express = require('express')
 // Import the routes for the app
 const userRouter = require('./routes/users')
 const cartRouter = require('./routes/carts')
+const productRouter = require('./routes/products')
 
 // Create the express app server
 var app = express()
@@ -21,11 +22,10 @@ app.get('/', (req, res) => {
     res.send('Hello World')
 })
 
-// Set the app to know about the routers and a ssign a specific URI enpoint for them
+// Let the apps know about the routes we intend to use
 app.use('/users', userRouter);
-
-// Let the app know about the carts routes
 app.use('/carts', cartRouter);
+app.use('/products', productRouter);
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
@@ -43,10 +43,10 @@ app.use((error, req, res, next) => {
     // Check for DB related error messages
     if(error.code == 23505){
         statusCode = 400;
-        message = "Unable to add record as the data supplied violates uniqueness rules.";
+        message = "Unable to process record as uniqueness rules were violated.";
     } else if(error.code == 23503) {
         statusCode = 400;
-        message = "Unable to add record as the data supplied violates foreign key rules.";
+        message = "Unable to process record as foreign key rules were violated.";
     } else {
         statusCode = error.status || 500;
         message = error.message || "Internal server error";
