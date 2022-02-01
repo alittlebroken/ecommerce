@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 // Let the apps know about the routes we intend to use
 app.use('/users', userRouter);
 app.use('/carts', cartRouter);
-app.use('products', productRouter);
+app.use('/products', productRouter);
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
@@ -43,10 +43,10 @@ app.use((error, req, res, next) => {
     // Check for DB related error messages
     if(error.code == 23505){
         statusCode = 400;
-        message = "Unable to add record as the data supplied violates uniqueness rules.";
+        message = "Unable to process record as uniqueness rules were violated.";
     } else if(error.code == 23503) {
         statusCode = 400;
-        message = "Unable to add record as the data supplied violates foreign key rules.";
+        message = "Unable to process record as foreign key rules were violated.";
     } else {
         statusCode = error.status || 500;
         message = error.message || "Internal server error";
