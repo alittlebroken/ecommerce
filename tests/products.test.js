@@ -7,10 +7,345 @@ const app = require ('../app')
 const db = require('../db/db')
 
 // Include the products Model
+const userModel = require('../models/user')
 const productModel = require('../models/products')
+const cartModel = require('../models/carts.js')
+const orderModel = require('../models/order.js')
 
 // Add plugins for chai
 chai.use(chai_http)
+
+describe('Orders', () => {
+
+    describe('POST to /orders', () => {
+
+        it('creates an order with status code 201', async () => {
+
+            // Gather data from the various tables in DB
+            let userID;
+            let cartID;
+            let prod1Id, prod2Id, prod3Id;
+
+            try{
+                userID = await userModel.findByEmail('littleted@ursine.com');
+                cartID = await cartModel.findByUser(userID);
+                prod1Id = await productModel.findByName({ "name": "Grass seed"});
+                prod2Id = await productModel.findByName({ "name": "Suckmaster Leaf Blower"});
+                prod3Id = await productModel.findByName({ "name": "Pink Fluffy Socks"});
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Generate data for the order
+            const orderData = {
+                "user_id": userID.user_id,
+                "order_date": Date.now(),
+                "order_paid_for": false,
+                "order_notes": "Blah Blah Blah",
+                "order_products": [
+                    {
+                        "product_id": prodId1.product_id,
+                        "quantity": 1
+                    },
+                    {
+                        "product_id": prodId2.product_id,
+                        "quantity": 1
+                    },
+                    {
+                        "product_id": prodId3.product_id,
+                        "quantity": 1
+                    }
+                ]
+            };
+            
+            // Run the tests and check the response back
+            chai.request(app)
+             .post('/orders')
+             .type('application/data')
+             .set('Accept', 'application/json')
+             .send(orderData)
+             .end((err, res) => {
+                if(err) done(err);
+
+                // Run the assertions
+                assert.equal(res.statusCode, 201);
+                assert.exists(res.body.order_id);
+
+                // Check the order appears
+                chai.request(app)
+                 .get(`/orders/${res.body.order_id}`)
+                 .end((err, res) => {
+                     if(err) done(err);
+
+                    assert.equal(res.statusCode, 200);
+                    
+                    // Check the details are correct
+                    assert.equal(res.body.order_date, orderData.order_date);
+                    assert.equal(res.body.order_paid_for, orderData.order_paid_for);
+                    assert.equal(res.body.order_notes, orderData.order_notes);
+                    assert.deepEqual(res.body.order_products, orderData.order_products);
+                 });
+             });
+
+
+        });
+
+        it('returns status code 404 with incorrect data passed', async () => {
+
+            // Generate data to be added
+            // Gather data from the various tables in DB
+            let userID;
+            let cartID;
+            let prod1Id, prod2Id, prod3Id;
+
+            try{
+                userID = await userModel.findByEmail('littleted@ursine.com');
+                cartID = await cartModel.findByUser(userID);
+                prod1Id = await productModel.findByName({ "name": "Bilge Waters"});
+                prod2Id = await productModel.findByName({ "name": "The art of coding"});
+                prod3Id = await productModel.findByName({ "name": "Dodge Gaming Wheel"});
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Generate data for the order
+            const orderData = {
+                "user_id": 546372,
+                "order_date": Date.now(),
+                "order_paid_for": false,
+                "order_notes": "Blah Blah Blah",
+                "order_products": [
+                    {
+                        "product_id": prodId1,
+                        "quantity": 1
+                    },
+                    {
+                        "product_id": prodId2,
+                        "quantity": 1
+                    },
+                    {
+                        "product_id": prodId3,
+                        "quantity": 1
+                    }
+                ]
+            };
+
+            chai.request(app)
+             .post(`/orders`)
+             .type('application/json')
+             .set('accept', 'application.json')
+             .send(orderData)
+             .end((err, res) => {
+                 if(err) done(err);
+
+                 assert.equal(res.statusCode, 404);
+             });
+
+        });
+
+    });
+
+    describe('GET to /orders', () => {
+
+        it('retrieves all orders from the system with status 200', async () => {
+
+            // Get the order list
+            chai.request(app)
+             .get('/orders')
+             .end((err, res) => {
+                 if(err) done(err);
+
+                 assert.equal(res.statusCode, 200);
+                 assert.isArray(res.body);
+                 assert.equal(res.body.length,6);
+             });
+
+        });
+
+    });
+
+    describe('GET to /orders/:orderId', () => {
+
+        it('retrieves the order with status 200', async () => {
+            
+            // Get the supporting information
+            let user, order;
+            try{
+
+                user = await userModel.findByName('littleted@ursine.com');
+                order = await orderModel.findByUser(user.user_id);
+
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Run the test and check the response
+            chai.request(app)
+             .get(`/orders/${order.order_id}`)
+             .end((err, res) => {
+                if(err) done(err);
+
+                assert.equal(res.statusCode, 200);
+                assert.exists(res.body.order_id);
+             });
+
+        });
+
+        it('returns 404 when it cant find the order', async () => {
+            
+            const orderId = 6473623;
+
+            // Run the test and check the response 
+            chai.request(app)
+             .get(`/orders/${orderId}`)
+             .end((err, res) => {
+                 if(err) done(err);
+
+                 assert.equal(res.statusCode, 404);
+             });
+
+        });
+
+    });
+
+    describe('PUT to /orders/:orderId', () => {
+
+        it('updates the order and returns status 201', async () => {
+            
+            // Get the supporting data
+            let user, order;
+            try{
+
+                user = await userModel.findByName('littleted@ursine.com');
+                order = await orderModel.findByUser(user.user_id);
+
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            const shipDate = Date.now();
+
+            // Create an updated record
+            const orderUpdates = {
+                "order_id": order.order_id,
+                "fields": [
+                {
+                    "column": "order_paid_for",
+                    "value": true
+                },
+                {
+                    "column": "order_shipped",
+                    "value": shipDate
+                }
+                ]
+            }
+
+            // Run the test and check the response
+            chai.request(app)
+             .put(`/orders/${order.order_id}`)
+             .type('application/json')
+             .set('Accept', 'application/json')
+             .send(orderUpdates)
+             .end((err, res) => {
+                 if(err) done(err);
+
+                 assert.equal(res.statusCode, 201);
+                 assert.equal(res.body.order_paid_for, true);
+                 assert.equal(res.body.order_shipped, shipDate);
+                 assert.isArray(res.body.items);
+                 assert.equal(res.body.items.length, 3);
+             });
+
+        });
+
+        it('returns status 404 when supplied with incorrect information', async () => {
+            
+            // Get the supporting data
+            let user, order;
+            try{
+
+                user = await userModel.findByName('littleted@ursine.com');
+                order = await orderModel.findByUser(user.user_id);
+
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Create an updated record
+            const orderUpdates = {
+                "order_id": order.order_id,
+                "fields": []
+            }
+
+            // Run the test and check the response
+            chai.request(app)
+             .put(`/orders/${order.order_id}`)
+             .type('application/json')
+             .set('Accept', 'application/json')
+             .send(orderUpdates)
+             .end((err, res) => {
+                 if(err) done(err);
+
+                 assert.equal(res.statusCode, 404);
+             });
+        });
+
+    });
+
+    describe('DELETE to /orders/:orderID', () => {
+
+        it('deletes the order and returns status 201', async () => {
+            
+            // Get the supporting data
+            let user, order;
+            try{
+
+                user = await userModel.findByName('littleted@ursine.com');
+                order = await orderModel.findByUser(user.user_id);
+
+            } catch(err) {
+                throw new Error(err);
+            }
+
+            // Run the test and check the response
+            chai.request(app)
+             .delete(`/orders/${order.order_id}`)
+             .end((err, res) => {
+                 if(err) done(err);
+
+                 assert.equal(res.statusCode, 201);
+
+                 // Check that the record no longer appears in the DB
+                 chai.request(app)
+                  .get(`/orders/${order/order_id}`)
+                  .end((err, res) => {
+                    if(err) done(err);
+
+                    assert.equal(404);
+                  });
+             });
+
+        });
+
+        it('returns 404 when supplied with incorrect information', async () => {
+            
+            // Set an incorrect order ID
+            const orderId = 736463;
+
+            // Run the test and check the response
+            chai.request(app)
+             .delete(`/orders/${orderId}`)
+             .end((err, res) => {
+                 if(err) done(err);
+
+                 assert.equal(404);
+             });
+
+        });
+
+    });
+
+});
 
 describe('PRODUCTS', () => {
 
