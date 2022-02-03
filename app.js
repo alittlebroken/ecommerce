@@ -7,6 +7,7 @@ let express = require('express')
 const userRouter = require('./routes/users')
 const cartRouter = require('./routes/carts')
 const productRouter = require('./routes/products')
+const orderRouter = require('./routes/orders')
 
 // Create the express app server
 var app = express()
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRouter);
 app.use('/carts', cartRouter);
 app.use('/products', productRouter);
+app.user('/orders', orderRouter);
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
