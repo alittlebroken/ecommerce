@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRouter);
 app.use('/carts', cartRouter);
 app.use('/products', productRouter);
-app.user('/orders', orderRouter);
+app.use('/orders', orderRouter);
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
