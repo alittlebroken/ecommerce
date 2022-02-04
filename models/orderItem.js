@@ -21,7 +21,7 @@ module.exports = class orderItem {
             // Create the statement and assign the values
             const stmt = `INSERT INTO orders_products(order_id, \
                           product_id, quantity, total) VALUES \
-                          ($1, $2, $3, $4) RTEURNING *;`;
+                          ($1, $2, $3, $4) RETURNING *;`;
 
             // Work out the total cost of this item
             const total  = parseFloat(this.price) * parseInt(this.qty);
