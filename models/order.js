@@ -74,7 +74,7 @@ module.exports = class orderModel {
     }
 
     // Find itesm associated with this order
-    static async findItems() {
+    static async findItems(orderid = null) {
         try{
 
             // Create the statement
@@ -97,19 +97,65 @@ module.exports = class orderModel {
         }
     }
 
+    // Find orders based on user id
+    static async findByUserId(id) {
+        try{
+
+            // Create the statement
+            const stmt = "SELECT * FROM orders WHERE user_id = $1;";
+            const values = [id];
+
+            // Execute the statement
+            const result = await db.query(stmt, values);
+            if(result.rows?.length){
+                return result.rows;
+            }
+
+            return null;
+
+        } catch(err) {  
+            throw new Error(err);
+        }
+    }
+
     // Find an order in the database
     static async findOrder(id) {
         try{
-            
+
             // Create the statement and execute it against the database
-            const stmt = `SELECT * FROM orders o INNER JOIN orders_products op \
+            const stmt = `SELECT o.order_id, op.quantity, (op.quantity * p.price) \ 
+                          as line_total,p.* FROM orders o INNER JOIN orders_products op \
                           ON o.order_id = op.order_id INNER JOIN products p ON \
-                          op.product_id = p.product_id WHERE o.order_id = $1`;
+                          p.product_id = op.product_id WHERE o.order_id = $1`;
+            
             const values = [id];
 
             const result = await db.query(stmt, values);
-            if(result.rows.length){
-                return result.rows[0];
+            
+            if(result.rows?.length){
+                return result.rows;
+            }
+
+            return null;
+
+        } catch(err) {
+            
+            throw new Error(err);
+        }
+    }
+
+    static async findOrders() {
+
+        try{
+
+            // Generate the statement to get all orders from the DB
+            const stmt = "SELECT * FROM orders;";
+            // Execute the statement
+            const result = await db.query(stmt, '');
+
+            // Check we have some records
+            if(result.rows?.length){
+                return result.rows;
             }
 
             return null;
@@ -117,11 +163,12 @@ module.exports = class orderModel {
         } catch(err) {
             throw new Error(err);
         }
+
     }
 
     // Update the order in the database
     static async update(data) {
-
+        
         try{
 
             const { updates, order_id } = data;
@@ -135,18 +182,18 @@ module.exports = class orderModel {
                 
                 stmt = `UPDATE orders SET `;
 
-               data.forEach((item, index) => {
+               updates.forEach((item, index) => {
                    if(index < numCols - 1) {
-                    stmt =+ `${item.column} = $${index +1}, `;
+                    stmt += `${item.column} = $${index +1}, `;
                     values.push(item.value);
                    } else {
-                    stmt =+ `${item.column} = $${index +1} `;
+                    stmt += `${item.column} = $${index +1} `;
                     values.push(item.value);
                    }
                })
 
-               stmt += `WHERE order_id = $${numCols + 1}`;
-               values.push(order_id);
+               stmt += `WHERE order_id = $${numCols + 1} RETURNING *;`;
+               values.push(parseInt(order_id));
 
             } else {
 
@@ -159,13 +206,15 @@ module.exports = class orderModel {
 
             // Execute the statement
             const result = await db.query(stmt, values);
-            if(result.rows.length){
-                return result.rows[0];
+            
+            if(result.rows?.length){
+                return result.rows;
             }
-
+            
             return null;
             
         } catch(err) {
+            
             throw new Error(err);
         }
     }
@@ -179,8 +228,8 @@ module.exports = class orderModel {
             const values = [id];
 
             const result = await db.query(stmt, values);
-            if(result.rows.length){
-                return result.rows[0];
+            if(result.rows?.length){
+                return result.rows;
             }
 
             return null;
