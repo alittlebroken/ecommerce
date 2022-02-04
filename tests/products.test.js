@@ -26,17 +26,17 @@ describe('Orders', () => {
              .get('/orders')
              .end((err, res) => {
                  if(err) done(err);
-
+                 
                  assert.equal(res.statusCode, 200);
                  assert.isArray(res.body);
-                 assert.equal(res.body.length,6);
+                 assert.equal(res.body.length,5);
              });
 
         });
 
     });
 
-    describe('GET to /orders/:orderId', () => {
+    describe('GET to /orders/:orderid', () => {
 
         it('retrieves the order with status 200', async () => {
             
@@ -44,21 +44,24 @@ describe('Orders', () => {
             let user, order;
             try{
 
-                user = await userModel.findByName('littleted@ursine.com');
-                order = await orderModel.findByUser(user.user_id);
+                user = await userModel.findByEmail('mugglelover@magicians.com');
+                order = await orderModel.findByUserId(user.user_id);
 
             } catch(err) {
                 throw new Error(err);
             }
 
+            
+
             // Run the test and check the response
             chai.request(app)
-             .get(`/orders/${order.order_id}`)
+             .get(`/orders/${order[0].order_id}`)
              .end((err, res) => {
                 if(err) done(err);
-
+                
                 assert.equal(res.statusCode, 200);
-                assert.exists(res.body.order_id);
+                assert.isArray(res.body);
+                assert.equal(res.body.length, 2);
              });
 
         });
@@ -88,19 +91,19 @@ describe('Orders', () => {
             let user, order;
             try{
 
-                user = await userModel.findByName('littleted@ursine.com');
-                order = await orderModel.findByUser(user.user_id);
+                user = await userModel.findByEmail('mugglelover@magicians.com');
+                order = await orderModel.findByUserId(user.user_id);
 
             } catch(err) {
                 throw new Error(err);
             }
 
-            const shipDate = Date.now();
+            //const shipDate = moment(Date.now()).format('YYYY-MM-DD HH:MM:SS');
+            const shipDate = new Date().toISOString();
 
             // Create an updated record
             const orderUpdates = {
-                "order_id": order.order_id,
-                "fields": [
+                "updates": [
                 {
                     "column": "order_paid_for",
                     "value": true
@@ -114,18 +117,18 @@ describe('Orders', () => {
 
             // Run the test and check the response
             chai.request(app)
-             .put(`/orders/${order.order_id}`)
+             .put(`/orders/${order[0].order_id}`)
              .type('application/json')
              .set('Accept', 'application/json')
              .send(orderUpdates)
              .end((err, res) => {
                  if(err) done(err);
-
+                
                  assert.equal(res.statusCode, 201);
-                 assert.equal(res.body.order_paid_for, true);
-                 assert.equal(res.body.order_shipped, shipDate);
-                 assert.isArray(res.body.items);
-                 assert.equal(res.body.items.length, 3);
+                 assert.isArray(res.body);
+                 assert.equal(res.body.length, 1);
+                 assert.equal(res.body[0].order_paid_for, true);
+                 assert.equal(res.body[0].order_shipped, shipDate);
              });
 
         });
@@ -136,8 +139,8 @@ describe('Orders', () => {
             let user, order;
             try{
 
-                user = await userModel.findByName('littleted@ursine.com');
-                order = await orderModel.findByUser(user.user_id);
+                user = await userModel.findByEmail('mugglelover@magicians.com');
+                order = await orderModel.findByUserId(user.user_id);
 
             } catch(err) {
                 throw new Error(err);
@@ -145,13 +148,12 @@ describe('Orders', () => {
 
             // Create an updated record
             const orderUpdates = {
-                "order_id": order.order_id,
-                "fields": []
+                "updates": []
             }
 
             // Run the test and check the response
             chai.request(app)
-             .put(`/orders/${order.order_id}`)
+             .put(`/orders/${order[0].order_id}`)
              .type('application/json')
              .set('Accept', 'application/json')
              .send(orderUpdates)
@@ -160,59 +162,6 @@ describe('Orders', () => {
 
                  assert.equal(res.statusCode, 404);
              });
-        });
-
-    });
-
-    describe('DELETE to /orders/:orderID', () => {
-
-        it('deletes the order and returns status 201', async () => {
-            
-            // Get the supporting data
-            let user, order;
-            try{
-
-                user = await userModel.findByName('littleted@ursine.com');
-                order = await orderModel.findByUser(user.user_id);
-
-            } catch(err) {
-                throw new Error(err);
-            }
-
-            // Run the test and check the response
-            chai.request(app)
-             .delete(`/orders/${order.order_id}`)
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode, 201);
-
-                 // Check that the record no longer appears in the DB
-                 chai.request(app)
-                  .get(`/orders/${order/order_id}`)
-                  .end((err, res) => {
-                    if(err) done(err);
-
-                    assert.equal(404);
-                  });
-             });
-
-        });
-
-        it('returns 404 when supplied with incorrect information', async () => {
-            
-            // Set an incorrect order ID
-            const orderId = 736463;
-
-            // Run the test and check the response
-            chai.request(app)
-             .delete(`/orders/${orderId}`)
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(404);
-             });
-
         });
 
     });
