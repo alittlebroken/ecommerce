@@ -3,14 +3,21 @@ require('dotenv').config()
 
 let express = require('express')
 
+// Import the authentication module
+require('./config/passport')
+
 // Import the routes for the app
 const userRouter = require('./routes/users')
 const cartRouter = require('./routes/carts')
 const productRouter = require('./routes/products')
 const orderRouter = require('./routes/orders')
+const authRouter = require('./routes/auth')
+
+// Import any models
+const userModel = require('./models/user')
 
 // Create the express app server
-var app = express()
+const app = express()
 
 // JSON config
 app.use(express.json())
@@ -28,6 +35,7 @@ app.use('/users', userRouter);
 app.use('/carts', cartRouter);
 app.use('/products', productRouter);
 app.use('/orders', orderRouter);
+app.use('/auth', authRouter);
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
