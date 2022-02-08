@@ -14,6 +14,7 @@ module.exports  = class userModel {
         this.is_admin = data.is_admin || false,
         this.is_logged_in = data_is_logged_in || false,
         this.last_logon = data.last_logon || null
+        this.role = data.roles || 'Customer'
     }
 
     // find all users
@@ -92,7 +93,7 @@ module.exports  = class userModel {
         try{
 
             // Create the query
-            const query = "INSERT INTO users(email,password,forename, surname) VALUES($1, $2, $3, $4) RETURNING *;";
+            const query = "INSERT INTO users(email,password,forename,surname) VALUES($1, $2, $3, $4) RETURNING *;";
             
             // Get the required values
             const { email, password, forename, surname } = data;
@@ -100,7 +101,6 @@ module.exports  = class userModel {
             // Generate a hashed password
             const salt = await bcrypt.genSalt(31);
             const hash = await this.hashPassword(password, salt);
-            
             
             // Run the query
             const result = await db.query(query,[email, hash, forename, surname]);
@@ -182,7 +182,7 @@ module.exports  = class userModel {
     // Generates a jason web token used in authorizing the user
     static async generateAccessToken(data){
 
-        return jwt.sign(data, process.env.TOKEN_SECRET);
+        return jwt.sign(data, process.env.TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPIRATION});
 
     }
 
