@@ -98,8 +98,9 @@ module.exports  = class userModel {
             const { email, password, forename, surname } = data;
             
             // Generate a hashed password
-            const hash = await this.hashPassword(password);
-            console.log(hash)
+            const salt = await bcrypt.genSalt(31);
+            const hash = await this.hashPassword(password, salt);
+            
             
             // Run the query
             const result = await db.query(query,[email, hash, forename, surname]);
@@ -118,6 +119,7 @@ module.exports  = class userModel {
             return null;
 
         } catch(err) {
+            
             throw new Error(err)
         }
     }
@@ -169,7 +171,7 @@ module.exports  = class userModel {
 
     // Creates a hashed password for the user
     static async hashPassword(password) {
-        return await bcrypt.hash(password, process.env.SALT_ROUNDS);
+        return await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS));
     }
 
     // Returns true if passwords match, false otherwise
