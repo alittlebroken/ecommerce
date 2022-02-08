@@ -26,4 +26,4 @@ const checkUserRoles = (roles) => (req, res, next) => {
 
 }
 
-export { checkUserRoles }
+module.exports = { checkUserRoles };
