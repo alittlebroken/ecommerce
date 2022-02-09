@@ -69,9 +69,4 @@ app.use((error, req, res, next) => {
     });
 });
 
-// Set the app to listen on the required port and then export the server
-app.listen(3000, () => {
-    console.log('server backend started');
-})
-
 module.exports = app;

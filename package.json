@@ -2,14 +2,20 @@
   "name": "ecommerce",
   "version": "0.0.0",
   "private": true,
+  "Jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
   "scripts": {
-    "start": "nodemon ./app.js",
-    "test": "mocha --timeout 10000 --require tests/hooks.js tests/*.test.js --exit"
+    "start": "nodemon ./server.js",
+    "test": "jest --detectOpenHandles"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-node8": "^1.2.0",
-    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
     "chai": "^4.3.4",
     "chai-http": "^4.3.0",
     "cookie-parser": "~1.4.4",
@@ -28,7 +34,10 @@
     "passport-local": "^1.0.0",
     "pg": "^8.7.1",
     "pg-format": "^1.0.4",
-    "request": "^2.88.2",
-    "supertest": "^6.2.0"
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1",
+    "supertest": "^6.2.2"
   }
 }
