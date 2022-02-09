@@ -39,14 +39,14 @@ module.exports  = class userModel {
 
     static async findByEmail (email){
         try{
-            console.log(email)
+            
             // Create the query
             const query = "SELECT * FROM users WHERE email = $1;";
             const values = [email];
 
             // Run the query
             const result = await db.query(query,values);
-            console.log(result)
+            
             // Check we have a record or more
             if(result.rows?.length){
                 
