@@ -5,24 +5,30 @@ const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const userModel = require('../models/user');
 
-require('dotenv').config();
-
 // Create a user
 passport.use(
-    'signup',
+    'register',
     new localStrategy(
         {
             usernameField: 'email',
             passwordField: 'password'
         },
         async (email, password, done) => {
-            try {
-                const user = await userModel.create({ email, password });
 
+            try {
+
+                // Assign the data to be passed in
+                const userData = {
+                    email,
+                    password
+                };
+
+                const user = await userModel.create(userData);
                 return done(null, user);
+
             } catch(err) {
                 const error = new Error('The supplied email has already been registered.');
-                error.status = 409
+                error.status = 409;
                 done(error);
             }
         }
@@ -39,6 +45,7 @@ passport.use(
         },
         async (email, password, done) => {
             try{
+                console.log(email)
                 const user = await userModel.findByEmail(email);
                 
                 if(!user){
@@ -49,6 +56,7 @@ passport.use(
                 if(!validate){
                     return done(null, false, { message: 'Wrong password'});
                 }
+                // Update the last login time
 
                 return done(null, user, { message: 'Logged in successfully'});
             } catch(error) {
@@ -66,6 +74,7 @@ passport.use(
     },
     async(token, done) => {
         try{
+            
             return done(null, token.user);
         } catch(error) {
             done(error);
