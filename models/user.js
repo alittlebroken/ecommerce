@@ -12,13 +12,13 @@ module.exports  = class userModel {
         this.email = data.email || null,
         this.password = data.password || null,
         this.is_admin = data.is_admin || false,
-        this.is_logged_in = data_is_logged_in || false,
+        this.is_logged_in = data.is_logged_in || false,
         this.last_logon = data.last_logon || null
         this.roles = data.roles || 'Customer'
     }
 
     // find all users
-    static async find () {
+    async find () {
         try{
 
             // Try to get the users
@@ -37,12 +37,12 @@ module.exports  = class userModel {
         }
     }
 
-    static async findByEmail (email){
+    async findByEmail (){
         try{
             
             // Create the query
             const query = "SELECT * FROM users WHERE email = $1;";
-            const values = [email];
+            const values = [this.email];
 
             // Run the query
             const result = await db.query(query,values);
@@ -65,7 +65,7 @@ module.exports  = class userModel {
         }
     }
 
-    static async findById (id){
+    async findById (id){
         try{
 
             // Create the query
@@ -91,49 +91,32 @@ module.exports  = class userModel {
         }
     }
 
-    static async create (data){
+    async create (){
         try{
-            
+
             // Create the query
             const queryString = `INSERT INTO users(email,password,forename,\
-                surname,contact_number) VALUES($1, $2, $3, $4, $5) \
+                surname,contact_number, roles) VALUES($1, $2, $3, $4, $5, $6) \
                 RETURNING *;`;
 
-            // Get the required values
-            const { 
-                email, 
-                password,
-                forename,
-                surname,
-                contact_number
-            } = data;
-        
             // Generate a hashed password
-            const hash = await bcrypt.hash(password, 10);
+            const hash = await bcrypt.hash(this.password, 10);
 
             // Set the values to use
             const values = [
-                email,
+                this.email,
                 hash,
-                forename,
-                surname,
-                contact_number
+                this.forename,
+                this.surname,
+                this.contact_number,
+                this.roles
             ];
 
             // Run the query
-            const result = await db.pool.query(queryString,values);
+            const result = await db.query(queryString,values);
 
             // Check we have a record or more
             if(result?.rows?.length){
-                // Assign local vars the required data from the returned resultset
-                this.id = result.rows[0].user_id;
-                this.email = result.rows[0].email;
-                this.password = result.rows[0].password;
-                this.forename = result.rows[0].forename;
-                this.surname = result.rows[0].surname;
-                this.contact_number = result.rows[0].contact_number;
-                this.roles = result.rows[0].roles;
-
                 // Send back the result to the calling script
                 return result.rows[0];
             }
@@ -145,7 +128,7 @@ module.exports  = class userModel {
         }
     }
 
-    static async update (data){
+    async update (data){
         try{
 
             // Create the query
@@ -169,7 +152,7 @@ module.exports  = class userModel {
         }
     }
 
-    static async delete (id){
+    async delete (id){
         try{
 
             // Create the query
@@ -191,7 +174,7 @@ module.exports  = class userModel {
     }
 
     // Creates a hashed password for the user
-    static async hashPassword(password) {
+    async hashPassword(password) {
         
         // Attempt to hash the password
         try{
@@ -206,12 +189,12 @@ module.exports  = class userModel {
     }
 
     // Returns true if passwords match, false otherwise
-    static async verifyPassword(hash, password){
+    async verifyPassword(hash, password){
         return await bcrypt.compare(password, hash);
     }
 
-    // Generates a jason web token used in authorizing the user
-    static async generateAccessToken(data){
+    // Generates a json web token used in authorizing the user
+    async generateAccessToken(data){
 
         return jwt.sign(
             data, 

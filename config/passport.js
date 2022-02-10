@@ -23,10 +23,17 @@ passport.use(
                     password
                 };
 
-                const user = await userModel.create(userData);
+                const newUser = new userModel({
+                    email: email,
+                    password: password,
+                    roles: 'Customer'
+                });
+
+                const user = await newUser.create();
                 return done(null, user);
 
             } catch(err) {
+                
                 const error = new Error('The supplied email has already been registered.');
                 error.status = 409;
                 done(error);
@@ -46,13 +53,14 @@ passport.use(
         async (email, password, done) => {
             try{
                 
-                const user = await userModel.findByEmail(email);
+                const userObj = new userModel({ email: email });
+                const user = await userObj.findByEmail();
                 
                 if(!user){
                     return done(null, false, { message: 'user not found'});
                 }
                 
-                const validate = await userModel.verifyPassword(user.password,password);
+                const validate = await userObj.verifyPassword(user.password,password);
                 if(!validate){
                     return done(null, false, { message: 'Wrong password'});
                 }
@@ -60,6 +68,7 @@ passport.use(
 
                 return done(null, user, { message: 'Logged in successfully'});
             } catch(error) {
+                console.log(error)
                 return done(error);
             }
         }
@@ -74,7 +83,6 @@ passport.use(
     },
     async(token, done) => {
         try{
-            
             return done(null, token.user);
         } catch(error) {
             done(error);

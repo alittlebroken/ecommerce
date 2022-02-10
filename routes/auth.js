@@ -34,8 +34,6 @@ router.post('/login', async( req, res, next) => {
                 // Check the info sent back from the passport login script
                 let error;
 
-                console.log(info)
-
                 if(info.message == 'user not found'){
                     error = new Error('Specified user was not found');
                     error.status = 404;
@@ -64,7 +62,8 @@ router.post('/login', async( req, res, next) => {
                 };
 
                 // Generate and send back the token
-                const token = await userModel.generateAccessToken({ user: body });
+                const userObj = new userModel({});
+                const token = await userObj.generateAccessToken({ user: body });
                 return res.json({ token });
             });
         } catch(error) {
