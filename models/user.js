@@ -117,6 +117,8 @@ module.exports  = class userModel {
 
             // Check we have a record or more
             if(result?.rows?.length){
+                // Populate the ID after we have created a user
+                this.id = result.rows[0].user_id;
                 // Send back the result to the calling script
                 return result.rows[0];
             }
