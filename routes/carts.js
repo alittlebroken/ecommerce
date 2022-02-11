@@ -146,7 +146,7 @@ router.get(
 
 // Get a certain carts contents
 router.get(
-    '/:cartid'
+    '/:cartid',
     passport.authenticate('jwt', { session: false }), 
     UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer), 
     async (req, res, next) => {
