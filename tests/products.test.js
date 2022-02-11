@@ -21,6 +21,7 @@ const orderModel = require('../models/order.js')
 let adminId, adminToken;
 let custId, custToken;
 let productId;
+let order1, order2, order3;
 
 // Setup and Teardown methods
 beforeAll( async () => {
