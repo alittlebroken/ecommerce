@@ -3,20 +3,38 @@ const db = require('../db/db')
 
 module.exports = class productModel {
 
+    constructor( data = {} ){
+
+        // Assign data passed to the class or set defaults if they are missing
+        this.product_id = data.product_id || null;
+        this.name = data.name || null;
+        this.description = data.description || null;
+        this.price = data.price || 0;
+        this.image_url = data.image_url || null;
+        this.in_stock = data.in_stock || false;
+
+    }
+
     // Find a product by name
-    static async findByName (data) {
+    async findByName () {
         try{
 
-            const { name } = data;
-
             const stmt = "SELECT * FROM products WHERE name = $1;";
-            const values = [name];
+            const values = [this.name];
 
             // Execute the statement
             const result = await db.query(stmt, values);
 
             // Check we have some data
-            if(result.rows.length){
+            if(result?.rows?.length){
+                // Set internal class vars
+                this.product_id = result.rows[0].product_id;
+                this.name = result.rows[0].name;
+                this.description = result.rows[0].description;
+                this.price = result.rows[0].price;
+                this.image_url = result.rows[0].image_url;
+                this.in_stock = result.rows[0].in_stock;
+
                 return result.rows[0];
             }
 
@@ -29,7 +47,7 @@ module.exports = class productModel {
     }
 
     // Return all products
-    static async findAll(){
+    async findAll(){
         try{
 
             // Create the statement
@@ -51,39 +69,45 @@ module.exports = class productModel {
     }
 
     // Find a product by it's ID
-    static async findById(id) {
+    async findById() {
         try{
 
             // Only perform the search if we have an ID to search by
-            if(id){
+            if(this.product_id){
                 // Buil;d the statement and values to be executed
                 const stmt = "SELECT * FROM products WHERE product_id = $1;";
-                const values = [id];
+                const values = [this.product_id];
 
                 // run the statement
                 const result = await db.query(stmt, values);
-
+                
                 // Check we have got some results
                 if(result.rows.length){
-                    return result.rows[0];
+
+                    // Set internal class vars
+                    this.name = result.rows[0].name;
+                    this.description = result.rows[0].description;
+                    this.price = result.rows[0].price;
+                    this.image_url = result.rows[0].image_url;
+                    this.in_stock = result.rows[0].in_stock;
+
+                    return result.rows;
                 }
             }
 
             return null;
 
         } catch(err) {
-            throw new error(err);
+            throw new Error(err);
         }
     }
 
     // Find a product by name
-    static async search (data) {
+    async search () {
         try{
 
-            const { name } = data;
-
             const stmt = "SELECT * FROM products WHERE name LIKE $1;";
-            const values = ['%' + name + '%'];
+            const values = ['%' + this.name + '%'];
 
             // Execute the statement
             const result = await db.query(stmt, values);
@@ -102,16 +126,7 @@ module.exports = class productModel {
     }
 
     // Add a product to the database
-    static async add(data) {
-
-        // extract the values from the parameter
-        const {
-            name,
-            description,
-            price,
-            image_url,
-            in_stock
-        } = data;
+    async add() {
 
         // add the value to the database
         try{
@@ -121,18 +136,31 @@ module.exports = class productModel {
                           price, image_url, in_stock) VALUES( \
                           $1, $2, $3, $4, $5) RETURNING *`;
 
-            if(!parseInt(price)){
+            if(!parseInt(this.price)){
                 return null;
             }
 
-            const values = [name, description, price, image_url, in_stock];
+            const values = [
+                this.name, 
+                this.description, 
+                this.price, 
+                this.image_url, 
+                this.in_stock];
 
             
             // Run the statement
             const result = await db.query(stmt, values);
             
             if(result.rows){
-                return result.rows[0];
+                // Set internal class vars
+                this.product_id = result.rows[0].product_id;
+                this.name = result.rows[0].name;
+                this.description = result.rows[0].description;
+                this.price = result.rows[0].price;
+                this.image_url = result.rows[0].image_url;
+                this.in_stock = result.rows[0].in_stock;
+
+                return result.rows;
             }
 
             return null;
@@ -143,17 +171,8 @@ module.exports = class productModel {
     }
 
     // Update a product within the database
-    static async update(data) {
-        // Get the values passed in
-        const {
-            product_id,
-            name,
-            description,
-            price,
-            image_url,
-            in_stock
-        } = data;
-
+    async update() {
+        
         // Update the record in the database
         try{
 
@@ -163,32 +182,48 @@ module.exports = class productModel {
                           price = $3, image_url = $4, \
                           in_stock = $5 WHERE product_id = $6 RETURNING *;";
 
-            const values = [name, description, price, image_url, in_stock, product_id];
+            const values = [
+                this.name, 
+                this.description, 
+                this.price, 
+                this.image_url, 
+                this.in_stock, 
+                parseInt(this.product_id)
+            ];
 
             // Run the statement and store the result
             const result = await db.query(stmt, values);
-
-            if(result.rows) {
-                return result.rows[0];
+            
+            if(result.rows?.length) {
+                // Set internal class vars
+                
+                this.product_id = result.rows[0].product_id;
+                this.name = result.rows[0].name;
+                this.description = result.rows[0].description;
+                this.price = result.rows[0].price;
+                this.image_url = result.rows[0].image_url;
+                this.in_stock = result.rows[0].in_stock;
+                return result.rows;
             } 
-
             return null;
 
         } catch(err) {
+            
             throw new Error(err);
         }
     }
 
     // Delete a specific product
-    static async deleteById(id) {
+    async deleteById() {
         try{
 
             // Delete statement
             const stmt = "DELETE FROM products WHERE product_id = $1 RETURNING *;";
-            const values = [id];
+            const values = [this.product_id];
 
             // Execute the statement
             const result = await db.query(stmt, values);
+
 
             if(result.rows){
                 return result.rows[0];
