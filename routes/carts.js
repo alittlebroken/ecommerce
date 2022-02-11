@@ -3,6 +3,11 @@ const express = require('express');
 const createHttpError = require('http-errors');
 const router = express.Router()
 const db = require('../db/db')
+const passport = require('passport')
+
+// Load any utils
+const ROLES = require('../utils/roles');
+const UTILS = require('../utils/auth');
 
 // Make use of required Models
 const cartModel = require('../models/carts')
@@ -10,7 +15,7 @@ const cartModel = require('../models/carts')
 
 // Check all params used in this route
 // ID for a cart
-router.param('cartid', (req, res, next, cartid) => {
+router.param('cartid',(req, res, next, cartid) => {
 
     // Check for the ids existance
     if(cartid){
@@ -67,7 +72,11 @@ router.param('itemid', (req, res, next, itemid) => {
 
 // POST 
 // Create a new cart
-router.post('/', async (req, res, next) => {
+router.post(
+    '/',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer), 
+    async (req, res, next) => {
 
     // Check we have data to process
     if(req.body.userId){
@@ -75,7 +84,8 @@ router.post('/', async (req, res, next) => {
        // Attempt to create the cart for the user
        try{
 
-        const result = await cartModel.create(req.body.userId);
+        const cart = new cartModel({ userId: req.body.userId});
+        const result = await cart.create();
         res.status(201).json(result);
 
        } catch(err) {
@@ -93,17 +103,22 @@ router.post('/', async (req, res, next) => {
 });
 
 // Add a product to the cart
-router.post('/:cartid', async (req, res, next) => {
+router.post(
+    '/:cartid',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer),  
+    async (req, res, next) => {
 
     // assign data from the req body and params
     const cartId = req.body.cartId;
     const { productId } = req.body.items[0];
 
     try{
-
-        const result = await cartModel.addToCart({
-            cartId, productId, quantity: 1
+        const cart = new cartModel({
+            cartId,
+            productId
         });
+        const result = await cart.addToCart();
         res.status(201).json(result);
 
     } catch(err) {
@@ -113,10 +128,15 @@ router.post('/:cartid', async (req, res, next) => {
 
 
 // Get all carts in the database
-router.get('/', async (req, res, next) => {
+router.get(
+    '/', 
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin), 
+    async (req, res, next) => {
 
     try{
-        const result = await cartModel.findAllCarts();
+        const cart = new cartModel();
+        const result = await cart.findAllCarts();
         res.status(200).json(result);
     } catch(err) {
         next(err);
@@ -125,15 +145,19 @@ router.get('/', async (req, res, next) => {
 });
 
 // Get a certain carts contents
-router.get('/:cartid', async (req, res, next) => {
+router.get(
+    '/:cartid'
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer), 
+    async (req, res, next) => {
 
     // Extract the cart ID
     const id = parseInt(req.body.cartId);
     
     // run the query and get the results
     try{
-        
-        const result = await cartModel.findAllCartItems({ cartId: id });
+        const cart = new cartModel({ cartId: id });
+        const result = await cart.findAllCartItems({ cartId: id });
         
         if(!result){
             res.status(404).json({ status: 404, message: "The cart specified contains no items"});
@@ -148,7 +172,11 @@ router.get('/:cartid', async (req, res, next) => {
 });
 
 // Update a carts contents
-router.put('/:cartid/items/:itemid', async (req, res, next) => {
+router.put(
+    '/:cartid/items/:itemid',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer),  
+    async (req, res, next) => {
 
     // Get the data from the request
     const { quantity } = req.body;
@@ -157,11 +185,12 @@ router.put('/:cartid/items/:itemid', async (req, res, next) => {
 
     // Update the item in the cart
     try{
-        const result = await cartModel.updateCartItem({
+        const cart = new cartModel({
             cartId,
             productId: itemId,
             quantity
         });
+        const result = await cart.updateCartItem();
 
         if(result){
             res.status(200).json(result);
@@ -179,13 +208,18 @@ router.put('/:cartid/items/:itemid', async (req, res, next) => {
 });
 
 // Delete a carts contents
-router.delete('/:cartid', async (req, res, next) => {
+router.delete(
+    '/:cartid',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer),  
+    async (req, res, next) => {
     const cartId = req.body.cartId;
 
     try{
 
         // Delete the cart contents
-        const result = await cartModel.removeAllCartItems({ cartId });
+        const cart = new cartModel({ cartId });
+        const result = await cart.removeAllCartItems();
         
         if(result){
             res.status(200).json(result);
@@ -202,7 +236,11 @@ router.delete('/:cartid', async (req, res, next) => {
 });
 
 // Delete a specific item from the cart
-router.delete('/:cartid/items/:itemid', async (req, res, next) => {
+router.delete(
+    '/:cartid/items/:itemid',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer),  
+    async (req, res, next) => {
 
     // Get the required params
     const cartId = req.body.cartId;
@@ -210,7 +248,8 @@ router.delete('/:cartid/items/:itemid', async (req, res, next) => {
 
     // Attempt to the delete the item
     try{
-        const result = await cartModel.removeCartItem({ cartId, productId: itemId });
+        const cart = new cartModel({ cartId, productId: itemId });
+        const result = await cart.removeCartItem();
 
         if(result){
             res.status(200).json(result);
