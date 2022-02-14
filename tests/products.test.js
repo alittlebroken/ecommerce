@@ -1,387 +1,293 @@
-const chai = require('chai')
-const chai_http = require('chai-http')
-const assert = chai.assert
-const app = require ('../app')
+// Required Packages
+const request = require('supertest');
+const bcrypt = require('bcryptjs');
 
-// Include the DB library so we can search for products if need be
-const db = require('../db/db')
+// Get access to environment vars
+require('dotenv').config();
 
-// Include the products Model
+// Access the DB
+const db = require('../db/db');
+
+// Access the app
+const app = require('../app');
+
+// Load any models needed
 const userModel = require('../models/user')
 const productModel = require('../models/products')
 const cartModel = require('../models/carts.js')
 const orderModel = require('../models/order.js')
 
-// Add plugins for chai
-chai.use(chai_http)
+// Vars needed across all tests
+let adminId, adminToken;
+let custId, custToken;
+let productId;
+let order1, order2, order3;
 
-describe('Orders', () => {
+// Setup and Teardown methods
+beforeAll( async () => {
 
-    describe('GET to /orders', () => {
-
-        it('retrieves all orders from the system with status 200', async () => {
-
-            // Get the order list
-            chai.request(app)
-             .get('/orders')
-             .end((err, res) => {
-                 if(err) done(err);
-                 
-                 assert.equal(res.statusCode, 200);
-                 assert.isArray(res.body);
-                 assert.equal(res.body.length,5);
-             });
-
-        });
-
+    // Create the admin user
+    const adminUserModel = new userModel({
+        email: 'admin1@ecommerce.com',
+        password: 'adm1n1st4t0r!8765',
+        roles: 'Admin'
     });
 
-    describe('GET to /orders/:orderid', () => {
+    const adminUser = await adminUserModel.create();
+    adminId = adminUser.id;
 
-        it('retrieves the order with status 200', async () => {
-            
-            // Get the supporting information
-            let user, order;
-            try{
+    // Get the token
+    const adminResponse = await request(app)
+     .post('/auth/login')
+     .type('application/json')
+     .set('Accept','application/json')
+     .send({ email: 'admin1@ecommerce.com', password: 'adm1n1st4t0r!8765' })
+    
+    adminToken = adminResponse.body.token;
 
-                user = await userModel.findByEmail('mugglelover@magicians.com');
-                order = await orderModel.findByUserId(user.user_id);
-
-            } catch(err) {
-                throw new Error(err);
-            }
-
-            
-
-            // Run the test and check the response
-            chai.request(app)
-             .get(`/orders/${order[0].order_id}`)
-             .end((err, res) => {
-                if(err) done(err);
-                
-                assert.equal(res.statusCode, 200);
-                assert.isArray(res.body);
-                assert.equal(res.body.length, 2);
-             });
-
-        });
-
-        it('returns 404 when it cant find the order', async () => {
-            
-            const orderId = 6473623;
-
-            // Run the test and check the response 
-            chai.request(app)
-             .get(`/orders/${orderId}`)
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode, 404);
-             });
-
-        });
-
+    // Create a user for the customer
+    const customerUserModel = new userModel({
+        email: 'customer1@ecommerce.com',
+        password: 'cust0-m3r1sr1ght',
+        roles: 'Customer'
     });
 
-    describe('PUT to /orders/:orderId', () => {
+    const customerUser = await customerUserModel.create();
+    custId = customerUser.id;
 
-        it('updates the order and returns status 201', async () => {
-            
-            // Get the supporting data
-            let user, order;
-            try{
-
-                user = await userModel.findByEmail('mugglelover@magicians.com');
-                order = await orderModel.findByUserId(user.user_id);
-
-            } catch(err) {
-                throw new Error(err);
-            }
-
-            //const shipDate = moment(Date.now()).format('YYYY-MM-DD HH:MM:SS');
-            const shipDate = new Date().toISOString();
-
-            // Create an updated record
-            const orderUpdates = {
-                "updates": [
-                {
-                    "column": "order_paid_for",
-                    "value": true
-                },
-                {
-                    "column": "order_shipped",
-                    "value": shipDate
-                }
-                ]
-            }
-
-            // Run the test and check the response
-            chai.request(app)
-             .put(`/orders/${order[0].order_id}`)
-             .type('application/json')
-             .set('Accept', 'application/json')
-             .send(orderUpdates)
-             .end((err, res) => {
-                 if(err) done(err);
-                
-                 assert.equal(res.statusCode, 201);
-                 assert.isArray(res.body);
-                 assert.equal(res.body.length, 1);
-                 assert.equal(res.body[0].order_paid_for, true);
-                 assert.equal(res.body[0].order_shipped, shipDate);
-             });
-
-        });
-
-        it('returns status 404 when supplied with incorrect information', async () => {
-            
-            // Get the supporting data
-            let user, order;
-            try{
-
-                user = await userModel.findByEmail('mugglelover@magicians.com');
-                order = await orderModel.findByUserId(user.user_id);
-
-            } catch(err) {
-                throw new Error(err);
-            }
-
-            // Create an updated record
-            const orderUpdates = {
-                "updates": []
-            }
-
-            // Run the test and check the response
-            chai.request(app)
-             .put(`/orders/${order[0].order_id}`)
-             .type('application/json')
-             .set('Accept', 'application/json')
-             .send(orderUpdates)
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode, 404);
-             });
-        });
-
-    });
+    // Get the token
+    const customerResponse = await request(app)
+     .post('/auth/login')
+     .type('application/json')
+     .set('Accept','application/json')
+     .send({ email: 'customer1@ecommerce.com', password: 'cust0-m3r1sr1ght' })
+    
+    customerToken = customerResponse.body.token;
 
 });
 
-describe('PRODUCTS', () => {
+afterAll( async () => {
 
-    describe('POST to /products', () => {
+    // Delete any added products
+    await db.query('DELETE FROM products WHERE name = $1;', ['Iron Man 4: Iron Harder']);
 
-        it('creates a product and returns status 201 on success', async () => {
+    // Deletes the users created
+    await db.query('DELETE FROM users WHERE email = $1;', ['admin1@ecommerce.com']);
+    await db.query('DELETE FROM users WHERE email = $1;', ['customer1@ecommerce.com']);
 
-            // Create a sample product to send in json format
+    // End the pool connections
+    await db.pool.end();
+
+});
+
+describe('Products', () => {
+
+    describe('POST /products', () => {
+
+        it('creates a product returns status 201', async () => { 
+
+            // Generate a product to add
             const postData = {
-                "name": "Iron Man 4: Iron Harder",
-                "description": "Iron Man faces off against his toughest opponent, household chores.",
-                "price": 15.99,
-                "image_url": null,
-                "in_stock": true
+                name: 'Iron Man 4: Iron Harder',
+                description: 'Iron Man faces off against his toughest opponent, household chores.',
+                price: 15.99,
+                image_url: null,
+                in_stock: true
             };
 
-            // Post the new data
-            chai.request(app)
-             .post('/products')
-             .type('application/json')
-             .set('Accept', 'application/json')
-             .send(postData)
-             .end((err, res) => {
-                 if(err) done(err);
-                 
-                 assert.equal(res.statusCode, 201);
-                 // Check that the data sent back matches the original data
-                 assert.equal(res.body.name, postData.name);
-                 assert.equal(res.body.description, postData.description);
-                 assert.equal(res.body.price, postData.price)
-                 assert.equal(res.body.image_url, postData.image_url);
-                 assert.equal(res.body.in_stock, postData.in_stock);
-             });
+            // Access the route
+            const response = await request(app)
+              .post('/products')
+              .query({ secret_token: adminToken })
+              .type('application/json')
+              .set('Accept','application/json')
+              .send(postData)
+
+            // Check the response
+            expect(response.statusCode).toBe(201);
+            expect(Array.isArray(response.body)).toBe(true);
+            expect(response.body.length).toEqual(1);
+
+            // Assign the product ID to be used for later testing
+            productId = response.body[0].product_id;
 
         });
 
-        it('fails with status 404 when sent with no data', async () => {
+        it('returns 401 if an unathorized users tries to create a product', async () => {
 
-            // POST to the route with no data
-            chai.request(app)
-             .post('/posts')
-             .type('application/json')
-             .set('Accept','application/json')
-             .send()
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode,404);
-             });
-
-        });
-
-        it('fails with status code 400 when sent with incorrect data', async () => {
-
-            // Set the data that will trigger the test
+            // Generate a product to add
             const postData = {
-                "name": "Product to trigger test",
-                "description": "Generic product #5679-B",
-                "price": "twelve pounds",
-                "image_url": null,
-                "in_stock": "yes"
-            };
-
-            // Send the request and then check the response
-            chai.request(app)
-             .post('/products')
-             .type('application/json')
-             .set('Accept', 'application/json')
-             .send(postData)
-             .end((err, res) => {
-                 if(err) done(err);
-                 
-                 assert.equal(res.statusCode, 400);
-             });
-
-        });
-
-    });
-
-    describe('GET to /products', () => {
-
-        it('gets a list of products from the database with status code 200', async () => {
-
-            // Get the products
-            chai.request(app)
-              .get('/products')
-              .end((err, res) => {
-                  if(err) done(err);
-                  
-                  assert.equal(res.statusCode, 200);
-                  assert.isArray(res.body);
-                  assert.equal(res.body.length, 9);
-              });
-
-        });
-
-    });
-
-    describe('GET to /products/:productId', () => {
-
-        it('returns the specified product with status code 200', async () => {
-
-            // Get an ID to search
-            let prodId;
-            try{
-                const result = await productModel.findByName({ "name": 'Iron Man 4: Iron Harder'});
-
-                if(result){
-                    prodId = result.product_id;
-                }
-
-            } catch(err) {
-                throw new Error(err);
+                name: 'Iron Man 5: A good day to iron hard',
+                description: "Tony's biggest challenge yet. Dress shirts",
+                price: 12.99,
+                image_url: null,
+                in_stock: true
             }
 
-            // Perform the test
-            chai.request(app)
-             .get(`/products/${prodId}`)
-             .end((err, res) => {
-                 if(err) done(err);
-                 assert.equal(res.statusCode, 200);
-                 assert.exists(res.body.product_id);
-                 
-                 // check the details are correct
-                 // Check that the data sent back matches the original data
-                 assert.equal(res.body.name, "Iron Man 4: Iron Harder");
-                 assert.equal(res.body.description, "Iron Man faces off against his toughest opponent, household chores.");
-                 assert.equal(res.body.price, 15.99)
-                 assert.equal(res.body.image_url, null);
-                 assert.equal(res.body.in_stock, true);
+            // Access the route
+            const response = await request(app)
+              .post('/products')
+              .type('application/json')
+              .set('Accept','application/json')
+              .send(postData)
 
-             });
+            // Check the response
+            expect(response.statusCode).toBe(401);
+            
 
         });
 
-        it('returns status 404 when supplied with no identifier', async () => {
+        it('returns status 404 when sent with no data', async () => {
 
-            // set a non existant product id
-            let prodId;
+            // Access the route
+            const response = await request(app)
+              .post('/products')
+              .query({ secret_token: adminToken })
+              .type('application/json')
+              .set('Accept','application/json')
+              .send({})
 
-            // Perform the get
-            chai.request(app)
-             .get(`/products/${prodId}`)
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode, 404);
-             });
+            // Check the response
+            expect(response.statusCode).toBe(404);
 
         });
 
-        it('returns status 404 when supplied with incorrect data', async () => {
+        it('returns status 400 when sent with incorrect data', async () => {
 
-            chai.request(app)
-             .get('/products/999999999')
-             .end((err, res) => {
-                 if(err) done(err);
+            // Generate a product to add
+            const postData = {
+                name: 'Iron Man 5: A good day to iron hard',
+                description: "Tony's biggest challenge yet. Dress shirts",
+                price: "tweve pounds fifty pence",
+                image_url: null,
+                in_stock: true
+            }
 
-                 assert.equal(res.statusCode, 404);
-             });
+            // Access the route
+            const response = await request(app)
+              .post('/products')
+              .query({ secret_token: adminToken })
+              .type('application/json')
+              .set('Accept','application/json')
+              .send(postData)
+
+            // Check the response
+            expect(response.statusCode).toBe(400);
+            
+        });
+
+    });
+
+    describe('GET /products', () => {
+
+        it('returns a list of products in the DB and status 200', async () => {
+
+            // Access the route
+            const response = await request(app)
+             .get('/products')
+             .query({ secret_token: adminToken })
+
+            // Check the response
+            expect(response.statusCode).toBe(200);
+            expect(Array.isArray(response.body)).toBe(true);
+            expect(response.body.length).toEqual(1);
 
         });
 
     });
 
-    describe('PUT to /products/:productId', () => {
+    describe('GET /products/:productId', () => {
 
-        it('updates a product, returns status 200 and the updated record', async () => {
-            // Get the ID of a product to update
-            let prodId;
-            try{
-                const result = await productModel.findByName({ "name": 'Iron Man 4: Iron Harder'});
+        it('returns the product with status 200', async () => {
 
-                if(result){
-                    prodId = result.product_id;
-                }
+            // Access the route
+            const response = await request(app)
+            .get(`/products/${productId}`)
 
-            } catch(err) {
-                throw new Error(err);
-            }
+            // Check the response
+            expect(response.statusCode).toBe(200);
+            expect(Array.isArray(response.body)).toBe(true);
+            expect(response.body.length).toEqual(1);
 
-            // Now set the dtaa to be updated
-            const productUpdate = {
+        });
+
+        it('returns status 404 when the product is not found', async () => {
+
+            // Access the route
+            const response = await request(app)
+            .get(`/products/${'-'}`)
+
+            // Check the response
+            expect(response.statusCode).toBe(404);
+
+        });
+
+    });
+
+    describe('PUT /products/:productId', () => {
+
+        it('updates the product and returns status 200', async () => {
+
+            // Generate the data to be updated
+            const putData = {
                 "name": "Iron Man 4: Iron Harder",
                 "description": "Iron Man faces off against his toughest opponent, household chores.",
-                "price": 13.99,
+                "price": 9.99,
                 "image_url": null,
                 "in_stock": false
             };
 
-            // Run the test and check the results
-            chai.request(app)
-            .put(`/products/${prodId}`)
-            .type('application/json')
-            .set('Accept','application/json')
-            .send(productUpdate)
-            .end((err, res) => {
-                if(err) done(err);
-                assert.equal(res.statusCode, 200);
-                // Check values sent back match the update sent
-                assert.equal(res.body.name, productUpdate.name);
-                assert.equal(res.body.description, productUpdate.description);
-                assert.equal(res.body.price, productUpdate.price);
-                assert.equal(res.body.image_url, productUpdate.image_url);
-                assert.equal(res.body.in_stock, productUpdate.in_stock);
-            });
+            // Access the route
+            const response = await request(app)
+              .put(`/products/${productId}`)
+              .query({ secret_token: adminToken })
+              .type('application/json')
+              .set('Accept', 'application/json')
+              .send(putData)
+
+
+            // Check the response
+            expect(response.statusCode).toBe(200);
+            expect(Array.isArray(response.body)).toBe(true);
+            expect(response.body.length).toEqual(1);
+
+            expect(response.body[0].product_id).toEqual(productId);
+            expect(response.body[0].name).toEqual(putData.name);
+            expect(response.body[0].description).toEqual(putData.description);
+            expect(parseFloat(response.body[0].price)).toEqual(putData.price);
+            expect(response.body[0].image_url).toEqual(putData.image_url);
+            expect(response.body[0].in_stock).toEqual(putData.in_stock);
+
+        });
+
+        it('returns 401 if not logged in before updating', async () => {
+
+            // Generate the data to be updated
+            const putData = {
+                "name": "Iron Man 4: Iron Harder",
+                "description": "Iron Man faces off against his toughest opponent, household chores.",
+                "price": 9.99,
+                "image_url": null,
+                "in_stock": false
+            };
+
+            // Access the route
+            const response = await request(app)
+              .put(`/products/${productId}`)
+              .type('application/json')
+              .set('Accept', 'application/json')
+              .send(putData)
+
+
+            // Check the response
+            expect(response.statusCode).toBe(401);
+
         });
 
         it('returns 404 if the product is not found', async () => {
 
-            // Set the non existant product ID
-            const product_id = 5647820;
-
             // Now set the data to be updated
-            const productUpdate = {
+            const putData = {
                 "name": "Iron Man 4: Iron Harder",
                 "description": "Iron Man faces off against his toughest opponent, household chores.",
                 "price": 13.99,
@@ -389,81 +295,50 @@ describe('PRODUCTS', () => {
                 "in_stock": false
             };
 
-            // Test the update and check the results
-            chai.request(app)
-             .put(`/products/${product_id}`)
-             .type('application/json')
-             .set('Accept', 'application/json')
-             .send(productUpdate)
-             .end((err, res) => {
-                 if(err) done(err);
-                 assert.equal(res.statusCode, 404);
+            // Access the route with a non existant ID
+            const response = await request(app)
+              .put(`/products/${1}`)
+              .query({ secret_token: adminToken })
+              .type('application/json')
+              .set('Accept', 'application/json')
+              .send(putData)
 
-             });
+
+            // Check the response
+            expect(response.statusCode).toBe(404);
 
         });
 
     });
+    
+    describe('DELETE /products/:productId', () => {
 
-    describe('DELETE to /products/:productId', () => {
+        it('deletes a product with status 201', async () => {
 
-        it('deletes a specific prodict and returns status code 201', async() => {
+            // Access the route
+            const response = await request(app)
+             .delete(`/products/${productId}`)
+             .query({ secret_token: adminToken })
 
-            // Get the ID of the product we wish to delete
-            let prodId;
-            try{
-                const result = await productModel.findByName({ "name": 'Iron Man 4: Iron Harder'});
-                if(result){
-                    prodId = result.product_id;
-                }
-            } catch(err) {
-                throw new Error(err);
-            }
+            // Check the response
+            expect(response.statusCode).toBe(201);
 
-            // perform the test and check the results
-            chai.request(app)
-             .delete(`/products/${prodId}`)
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode, 201);
-             });
-
-             // check that it is indeed deleted
-             chai.request(app)
-              .get(`/products/${prodId}`)
-              .end((err, res) => {
-                  if(err) done(err);
-
-                  assert.equal(res.statusCode, 404);
-              });
-
-              // Check that we should get all products minus 1
-              chai.request(app)
-               .get('/products')
-               .end((err, res) => {
-                    if(err) done(err);
-
-                    assert.equal(re.statusCode, 200);
-                    assert.isArray(res.body);
-                    assert.equal(res.body.length, 8);
-               });
+            // Check if the deleted item shows up still
+            const checkIfDeleted = await request(app)
+             .get(`/products/${productId}`)
+            
+             expect(checkIfDeleted.statusCode).toBe(404);
 
         });
 
-        it('returns status 404 if a record to be deleted cant be found', async () => {
+        it('returns 401 when an unauthorized user tries to access route', async () => {
 
-            // set the product id
-            const prodId = 324804;
+            // Access the route
+            const response = await request(app)
+             .delete(`/products/${productId}`)
 
-            // Now run the test and check the result
-            chai.request(app)
-             .delete(`/products/${prodId}`)
-             .end((err, res) => {
-                 if(err) done(err);
-
-                 assert.equal(res.statusCode, 404);
-             });
+            // Check the response
+            expect(response.statusCode).toBe(401);
 
         });
 

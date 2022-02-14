@@ -3,12 +3,21 @@ const db = require('../db/db')
 
 module.exports = class cartModel {
 
+    constructor(data = {}){
+
+        this.cartId = parseInt(data.cartId) || null;
+        this.userId = parseInt(data.userId) || null;
+        this.productId = parseInt(data.productId) || null;
+        this.quantity = parseInt(data.quantity) || 0;
+
+    }
+
     // Find the cart by user
-    static async findByUser (userId){
+    async findByUser (){
         try{
 
             const stmt = "SELECT * FROM carts WHERE user_id = $1;";
-            const values = [userId];
+            const values = [this.userId];
 
             // run the query
             const result = await db.query(stmt, values);
@@ -25,11 +34,11 @@ module.exports = class cartModel {
     }
 
     // Find a cart by cart id
-    static async findById (cartId){
+    async findById (){
         try{
 
             const stmt = "SELECT * FROM carts WHERE cart_id = $1;";
-            const values = [cartId];
+            const values = [this.cartId];
 
             // Run the statement
             const result = await db.query(stmt, values);
@@ -46,7 +55,7 @@ module.exports = class cartModel {
     }
 
     // Find all carts
-    static async findAllCarts () {
+    async findAllCarts () {
         try{
             const stmt = `SELECT c.cart_id, c.user_id, u.email FROM carts c
                          INNER JOIN users u ON
@@ -65,11 +74,11 @@ module.exports = class cartModel {
     }
 
     // Create a cart
-    static async create (userId) {
+    async create () {
         try{
 
             const stmt = "INSERT INTO carts(user_id) VALUES($1) RETURNING *;";
-            const values = [userId];
+            const values = [this.userId];
 
             // Execute the statement
             const result = await db.query(stmt, values);
@@ -86,14 +95,12 @@ module.exports = class cartModel {
     }
 
     // add Item to cart
-    static async addToCart (data) {
-
-        const { cartId, productId, quantity } = data;
+    async addToCart () {
 
         try{
 
             const stmt = "INSERT INTO carts_products(cart_id, product_id, quantity) VALUES($1, $2, $3) RETURNING *;";
-            const values = [cartId, productId, quantity];
+            const values = [this.cartId, this.productId, this.quantity];
 
             // Run the statement
             const result = await db.query(stmt, values);
@@ -111,18 +118,16 @@ module.exports = class cartModel {
     }
 
     // Update item in cart
-    static async updateCartItem (data) {
+    async updateCartItem () {
 
-        const { cartId, productId, quantity } = data;
         let stmt;
         let values;
         let result;
 
-        if(parseInt(quantity) === 0) {
+        if(parseInt(this.quantity) === 0) {
             // Remove the item from the cart
             try{
-                const removedResult = await this.removeCartItem({ cartId, productId });
-
+                const removedResult = await this.removeCartItem();
                 if(removedResult){
                     return removedResult;
                 } else {
@@ -136,13 +141,13 @@ module.exports = class cartModel {
             try{
 
                 stmt = "UPDATE carts_products SET quantity = $1 WHERE product_id = $2 and cart_id = $3 RETURNING *;";
-                values = [quantity, productId, cartId];
+                values = [this.quantity, this.productId, this.cartId];
 
                 // Execute the statement
                 result = await db.query(stmt, values);
                 
                 if(result.rows.length){
-                    return result.rows[0];
+                    return result.rows;
                 }
 
                 return null;
@@ -155,22 +160,18 @@ module.exports = class cartModel {
     }
 
     // Remove an item from the cart
-    static async removeCartItem (data) {
-        
-        const { cartId, productId } = data;
+    async removeCartItem () {
 
         try{
 
-            const stmt = "DELETE FROM carts_products where cart_id = $1 and product_id = $2 RETURNING *;";
-            const values = [cartId, productId];
+            const stmt = "DELETE FROM carts_products WHERE cart_id IN($1) and product_id IN($2) RETURNING *;";
+            const values = [this.cartId, this.productId];
 
             // Execute the statement
             const result = await db.query(stmt, values);
-    
-            if(result.rows.length){
-                
-                
-                return result.rows[0];
+
+            if(result?.rows?.length){
+                return result.rows;
             }
 
             return null;
@@ -182,13 +183,11 @@ module.exports = class cartModel {
     }
 
     // Remove all items from the cart
-    static async removeAllCartItems (data) {
-
-        const { cartId } = data;
+    async removeAllCartItems () {
 
         try{
             const stmt = "DELETE FROM carts_products WHERE cart_id = $1 RETURNING *;";
-            const values = [cartId];
+            const values = [this.cartId];
 
             // Execute the statement
             const result = await db.query(stmt, values);
@@ -204,9 +203,7 @@ module.exports = class cartModel {
     }
 
     // Get all items from the cart
-    static async findAllCartItems(data) {
-
-        const { cartId } = data;
+    async findAllCartItems() {
         
         try{
             const stmt = `SELECT u.email,c.cart_id,cp.quantity,p.* FROM users u 
@@ -215,7 +212,7 @@ module.exports = class cartModel {
                           products p ON cp.product_id = p.product_id WHERE 
                           c.cart_id = $1;`;
 
-            const values = [cartId];
+            const values = [this.cartId];
             
 
             // Execute the statement

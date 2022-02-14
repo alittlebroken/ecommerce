@@ -2,6 +2,11 @@
 const express = require('express');
 const router = express.Router()
 const db = require('../db/db')
+const passport = require('passport')
+
+// Load any utils
+const ROLES = require('../utils/roles');
+const UTILS = require('../utils/auth');
 
 // Make use of required Models
 const productModel = require('../models/products')
@@ -33,8 +38,12 @@ router.param('productId', (req, res, next, productId) => {
 
 });
 
-// Handle the POST route
-router.post('/', async (req, res, next) => {
+// Handle the POST route, only for admins
+router.post(
+    '/',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin),
+    async (req, res, next) => {
 
     // Get the values from the reqwuest body
     const { name, description, price, image_url, in_stock } = req.body;
@@ -53,13 +62,14 @@ router.post('/', async (req, res, next) => {
 
             }
 
-            const result = await productModel.add({
+            const product = new productModel({
                 name,
                 description,
                 price,
                 image_url,
                 in_stock
-            });
+            })
+            const result = await product.add();
 
             // Check if the product was added
             if(result){
@@ -75,7 +85,7 @@ router.post('/', async (req, res, next) => {
     } else {
         
         const err = new Error("Missing one or more required values");
-        err.status(404);
+        err.status = 404;
         return next(err);
     }
 
@@ -88,7 +98,8 @@ router.get('/', async (req, res, next) => {
     try{
         
         // Assign the result from the DB
-        const resultSet = await productModel.findAll();
+        const products = new productModel();
+        const resultSet = await products.findAll();
 
         // Check we have some data to send back
         if(resultSet.length){
@@ -116,7 +127,8 @@ router.get('/:productId', async (req, res, next) => {
         const productId = req.body.product_id;
 
         // Perform the query
-        const result = await productModel.findById(productId);
+        const product = new productModel({ product_id: productId });
+        const result = await product.findById();
 
         if(result){
             res.status(200).json(result);
@@ -133,24 +145,20 @@ router.get('/:productId', async (req, res, next) => {
 
 });
 
-// Update a product
-router.put('/:productId', async (req, res, next) => {
-
-    // Extract data from the request body
-    const {
-        product_id,
-        name,
-        description,
-        price,
-        image_url,
-        in_stock
-    } = req.body;
+// Update a product, admins only
+router.put(
+    '/:productId',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin), 
+    async (req, res, next) => {
 
     // Update the record
     try{
 
         // Update
-        const result = await productModel.update({ product_id, name, description, price, image_url, in_stock });
+        
+        const product = new productModel(req.body);
+        const result = await product.update();
         
         if(result){
             res.status(200).json(result);
@@ -172,13 +180,18 @@ router.put('/:productId', async (req, res, next) => {
 
 });
 
-// Delete a product from the database
-router.delete('/:productId', async (req, res, next) => {
+// Delete a product from the database, again admin only
+router.delete(
+    '/:productId',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin), 
+    async (req, res, next) => {
 
     // attempt to delete the record from the db
     try{
 
-        const result = await productModel.deleteById(req.body.product_id);
+        const product = new productModel({ product_id: parseInt(req.body.product_id) });
+        const result = await product.deleteById();
 
         if(result){
             res.status(201).json(result);
@@ -195,8 +208,12 @@ router.delete('/:productId', async (req, res, next) => {
 
 });
 
-// Delete all products from the DB
-router.delete('/', async (req, res, next) => {
+// Delete all products from the DB, admin user only
+router.delete(
+    '/',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin), 
+    async (req, res, next) => {
 
     // Delete the products
     try{

@@ -7,6 +7,7 @@ const orderItem = require('./orderItem')
 module.exports = class orderModel {
 
     constructor(data = {}) {
+
         this.order_id = data.order_id || 0,
         this.user_id = data.user_id || 0,
         this.items = data.items || [],
@@ -16,15 +17,16 @@ module.exports = class orderModel {
         this.order_shipped = data.shipped || null,
         this.order_arrived = data.arrived || null,
         this.order_total_cost = data.total_cost  || 0
+
     }
 
     // Add items to the order
-    static async addItems(items = {}){
+    async addItems(items = {}){
         this.items = items.map(item => new orderItem(item));
     }
 
     // Create the order
-    static async create() {
+    async create() {
 
         // Attempt to create the order
         try{
@@ -74,7 +76,7 @@ module.exports = class orderModel {
     }
 
     // Find itesm associated with this order
-    static async findItems(orderid = null) {
+    async findItems() {
         try{
 
             // Create the statement
@@ -98,12 +100,12 @@ module.exports = class orderModel {
     }
 
     // Find orders based on user id
-    static async findByUserId(id) {
+    async findByUserId() {
         try{
 
             // Create the statement
             const stmt = "SELECT * FROM orders WHERE user_id = $1;";
-            const values = [id];
+            const values = [this.order_id];
 
             // Execute the statement
             const result = await db.query(stmt, values);
@@ -119,7 +121,7 @@ module.exports = class orderModel {
     }
 
     // Find an order in the database
-    static async findOrder(id) {
+    async findOrder() {
         try{
 
             // Create the statement and execute it against the database
@@ -128,7 +130,7 @@ module.exports = class orderModel {
                           ON o.order_id = op.order_id INNER JOIN products p ON \
                           p.product_id = op.product_id WHERE o.order_id = $1`;
             
-            const values = [id];
+            const values = [this.order_id];
 
             const result = await db.query(stmt, values);
             
@@ -144,7 +146,7 @@ module.exports = class orderModel {
         }
     }
 
-    static async findOrders() {
+    async findOrders() {
 
         try{
 
@@ -167,10 +169,10 @@ module.exports = class orderModel {
     }
 
     // Update the order in the database
-    static async update(data) {
+    async update(data) {
         
         try{
-
+            
             const { updates, order_id } = data;
 
             let stmt;
@@ -220,12 +222,12 @@ module.exports = class orderModel {
     }
 
     // Delete an order in the database
-    static async deleteById(id) {
+    async deleteById() {
         try{
 
             // Generate the statmenet to execute and then run it
             const stmt = "DELETE FROM orders WHERE order_id = $1 RETURNING *;";
-            const values = [id];
+            const values = [this.order_id];
 
             const result = await db.query(stmt, values);
             if(result.rows?.length){

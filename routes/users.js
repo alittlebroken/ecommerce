@@ -1,8 +1,12 @@
 const express = require('express');
 const createHttpError = require('http-errors');
-const { RowDescriptionMessage, CommandCompleteMessage } = require('pg-protocol/dist/messages');
 const router = express.Router()
 const db = require('../db/db')
+const passport = require('passport')
+
+// Load any utils
+const ROLES = require('../utils/roles');
+const UTILS = require('../utils/auth');
 
 // Check that any required params are set correctly
 router.param("userid", (req, res, next, userid) => {
@@ -58,8 +62,12 @@ router.param("orderid", (req, res, next, orderid) => {
 
 });
 
-// Get a list of all users
-router.get('/', async (req, res, next) => {
+// Get a list of all users, admins only
+router.get(
+    '/',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin),
+    async (req, res, next) => {
 
     // Attempt to query the DB and retrieve the records and send them back
     try{
@@ -71,8 +79,12 @@ router.get('/', async (req, res, next) => {
    
 });
 
-// Get an individuals ID from the database
-router.get('/:userid', async (req, res, next) => {
+// Get an individuals ID from the database, authed users only
+router.get(
+    '/:userid',
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer), 
+    async (req, res, next) => {
 
     try{
         const response = await db.query('SELECT * FROM users WHERE user_id = $1',[req.body.userid]);
@@ -87,8 +99,12 @@ router.get('/:userid', async (req, res, next) => {
 
 });
 
-// Add a user to the database
-router.post('/', async (req, res, next) => {
+// Add a user to the database via protected route for admins only
+router.post(
+    '/', 
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin),
+    async (req, res, next) => {
 
     // Generate the sql
     
@@ -122,7 +138,12 @@ router.post('/', async (req, res, next) => {
 
 });
 
-router.delete('/:userid', async (req, res, next) => {
+// Delete the user via a protected route for admin
+router.delete(
+    '/:userid', 
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin),
+    async (req, res, next) => {
 
     // As always get the ID from the request
     const id = req.body.userid;
@@ -151,7 +172,12 @@ router.delete('/:userid', async (req, res, next) => {
 
 });
 
-router.put('/:userid', async (req, res, next) => {
+// Update the user, authorized users only
+router.put(
+    '/:userid', 
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer),
+    async (req, res, next) => {
 
     // Extract the user ID for the update command
     let user_id = req.body.userid;
@@ -192,8 +218,12 @@ router.put('/:userid', async (req, res, next) => {
 
 });
 
-// Get all orders for the specified user
-router.get('/:userid/orders', async (req, res, next) => {
+// Get all orders for the specified user for authorized users only
+router.get(
+    '/:userid/orders', 
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer),
+    async (req, res, next) => {
 
     // get the relevant information from the the request
     const id = req.body.userid;
@@ -214,8 +244,12 @@ router.get('/:userid/orders', async (req, res, next) => {
 
 });
 
-// Get an individual order for a user
-router.get('/:userid/orders/:orderid', async (req, res, next) => {
+// Get an individual order for a user, only for authorized users
+router.get(
+    '/:userid/orders/:orderid', 
+    passport.authenticate('jwt', { session: false }), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer),
+    async (req, res, next) => {
     // Get the user and order ids form the request body
     const userId = req.body.userid;
     const orderId = req.body.orderid;
