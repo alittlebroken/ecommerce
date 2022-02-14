@@ -110,8 +110,18 @@ router.post(
     async (req, res, next) => {
 
     // assign data from the req body and params
-    const cartId = req.body.cartId;
-    const { productId } = req.body.items[0];
+    let cartID, productId;
+    if(!req.body.items || req.body.items == undefined || req.body.items == null) {
+        res.status(404).send(
+            {
+                status: 404,
+                message: "Required data is missing from the request body"
+            }
+        )
+    } else {
+        cartId = req.body.cartId;
+        productId = req.body.items[0].productId;
+    }
 
     try{
         const cart = new cartModel({
@@ -158,7 +168,8 @@ router.get(
     try{
         const cart = new cartModel({ cartId: id });
         const result = await cart.findAllCartItems({ cartId: id });
-        
+    
+
         if(!result){
             res.status(404).json({ status: 404, message: "The cart specified contains no items"});
         } else {
@@ -190,6 +201,7 @@ router.put(
             productId: itemId,
             quantity
         });
+
         const result = await cart.updateCartItem();
 
         if(result){
