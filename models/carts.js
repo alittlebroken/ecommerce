@@ -5,10 +5,10 @@ module.exports = class cartModel {
 
     constructor(data = {}){
 
-        this.cartId = data.cartId || null;
-        this.userId = data.userId || null;
-        this.productId = data.productId || null;
-        this.quantity = parseInt(data.quantity) || 1;
+        this.cartId = parseInt(data.cartId) || null;
+        this.userId = parseInt(data.userId) || null;
+        this.productId = parseInt(data.productId) || null;
+        this.quantity = parseInt(data.quantity) || 0;
 
     }
 
@@ -128,7 +128,6 @@ module.exports = class cartModel {
             // Remove the item from the cart
             try{
                 const removedResult = await this.removeCartItem();
-
                 if(removedResult){
                     return removedResult;
                 } else {
@@ -148,7 +147,7 @@ module.exports = class cartModel {
                 result = await db.query(stmt, values);
                 
                 if(result.rows.length){
-                    return result.rows[0];
+                    return result.rows;
                 }
 
                 return null;
@@ -165,16 +164,14 @@ module.exports = class cartModel {
 
         try{
 
-            const stmt = "DELETE FROM carts_products where cart_id = $1 and product_id = $2 RETURNING *;";
+            const stmt = "DELETE FROM carts_products WHERE cart_id IN($1) and product_id IN($2) RETURNING *;";
             const values = [this.cartId, this.productId];
 
             // Execute the statement
             const result = await db.query(stmt, values);
-    
-            if(result.rows.length){
-                
-                
-                return result.rows[0];
+
+            if(result?.rows?.length){
+                return result.rows;
             }
 
             return null;
