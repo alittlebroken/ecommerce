@@ -14,14 +14,13 @@ const orderRouter = require('./routes/orders')
 const authRouter = require('./routes/auth')
 const checkoutRouter = require('./routes/checkout')
 const fullfillmentRouter = require('./routes/fullfillment');
-
-// Import any models
-const userModel = require('./models/user')
+const bodyParser = require('body-parser');
 
 // Create the express app server
 const app = express()
 
 // JSON config
+app.use('/fulfill/order', bodyParser.raw({ type: 'application/json'} ))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json({ type: 'application/json'}))
@@ -33,13 +32,14 @@ app.get('/', (req, res) => {
 })
 
 // Let the apps know about the routes we intend to use
+app.use('/fulfill', fullfillmentRouter);
 app.use('/users', userRouter);
 app.use('/carts', cartRouter);
 app.use('/products', productRouter);
 app.use('/orders', orderRouter);
 app.use('/auth', authRouter);
 app.use('/checkout', checkoutRouter);
-app.use('/fulfill', fullfillmentRouter);
+
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
