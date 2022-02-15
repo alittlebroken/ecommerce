@@ -47,7 +47,7 @@ router.param('cartid',(req, res, next, cartid) => {
 
 // Checkout session
 router.post(
-    `/:cartid`, 
+    `/:cartid`,
     passport.authenticate('jwt', { session: false }), 
     UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer), 
     async (req, res, next) => {
@@ -93,6 +93,7 @@ router.post(
         payment_method_types: ['card'],
         line_items: stripeItemData,
         mode: 'payment',
+        client_reference_id: cart_id,
         success_url: `${process.env.CLIENT_URL}/sucess`,
         cancel_url: `${process.env.CLIENT_URL}/cancel`,
     });
