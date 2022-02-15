@@ -13,6 +13,7 @@ const productRouter = require('./routes/products')
 const orderRouter = require('./routes/orders')
 const authRouter = require('./routes/auth')
 const checkoutRouter = require('./routes/checkout')
+const fullfillmentRouter = require('./routes/fullfillment');
 
 // Import any models
 const userModel = require('./models/user')
@@ -38,6 +39,7 @@ app.use('/products', productRouter);
 app.use('/orders', orderRouter);
 app.use('/auth', authRouter);
 app.use('/checkout', checkoutRouter);
+app.use('/fulfill', fullfillmentRouter);
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
