@@ -182,11 +182,11 @@ describe('Checkout', () => {
         it('creates a checkout session and sends back a stripe payment url', async () => {
 
             // Set the cartId to checkout
-            const cart_id = cartId;
+            const cart_id = cartId.rows[0].cart_id;
 
             // Access the route
             const response = await request(app)
-             .post(`/${cart_id}`)
+             .post(`/checkout/${cart_id}`)
              .query({ secret_token: adminToken })
              .type('application/json')
              .set('Accept', 'application/json')
@@ -205,11 +205,11 @@ describe('Checkout', () => {
         it('returns 401 if an unathorized user tries to access the url', async () => {
 
              // Set the cartId to checkout
-             const cart_id = cartId;
+             const cart_id = cartId.rows[0].cart_id;
 
              // Access the route
              const response = await request(app)
-              .post(`/${cart_id}`)
+              .post(`/checkout/${cart_id}`)
               .type('application/json')
               .set('Accept', 'application/json')
               .send()
@@ -226,7 +226,7 @@ describe('Checkout', () => {
 
              // Access the route
              const response = await request(app)
-              .post(`/${cart_id}`)
+              .post(`/checkout/${cart_id}`)
               .query({ secret_token: adminToken })
               .type('application/json')
               .set('Accept', 'application/json')
@@ -234,16 +234,6 @@ describe('Checkout', () => {
  
              // Check the response
              expect(response.statusCode).toBe(404);
-
-        });
-
-    });
-
-    describe('Order Fullfillment', () => {
-
-        it('creates an order once payment has been successfull', async () => {
-
-            
 
         });
 
