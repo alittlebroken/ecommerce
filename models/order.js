@@ -40,12 +40,14 @@ module.exports = class orderModel {
             // Work out the total cost
             let total_cost;
 
-            if(this.items.length >0){
+            if(this.items.length > 0){
 
                 this.items.map(item => {
                     total_cost += parseFloat(item.total);
                 });
 
+            } else {
+                total_cost = this.order_total_cost;
             }
             
             // Values to be inserted
