@@ -6,12 +6,13 @@ module.exports = class productModel {
     constructor( data = {} ){
 
         // Assign data passed to the class or set defaults if they are missing
-        this.product_id = data.product_id || null;
+        this.product_id = parseInt(data.product_id) || null;
         this.name = data.name || null;
         this.description = data.description || null;
-        this.price = data.price || 0;
+        this.price = parseFloat(data.price) || 0;
         this.image_url = data.image_url || null;
         this.in_stock = data.in_stock || false;
+        this.category = parseInt(data.category) || null;
 
     }
 
@@ -106,8 +107,44 @@ module.exports = class productModel {
     async search () {
         try{
 
-            const stmt = "SELECT * FROM products WHERE name LIKE $1;";
-            const values = ['%' + this.name + '%'];
+            // Vars for holding the final statement and values 
+            let stmt, values;
+
+            /* 
+            Generate the correct statement to run based the values for
+            name and category
+            */
+            if(this.name && !this.catgeory){
+                /*
+                    Searching all products
+                */
+                stmt = "SELECT * FROM products WHERE name LIKE $1;";
+                values = ['%' + this.name + '%'];
+
+            } else if(this.name && this.category) {
+                /*
+                    Search only amongst those products in the specified category
+                */
+                stmt = `SELECT p.* FROM products p INNER JOIN products_categories pc \
+                on p.product_id = pc.product_ID WHERE p.name LIKE $1 AND pc.category_id \
+                = $2`;
+                values = ['%' + this.name + '%', this.category];
+
+            } else if (!this.name && this.category){
+                /*
+                    Pull out all products that match the desired category
+                */
+                stmt = `SELECT p.* FROM products p INNER JOIN products_categories pc \
+                    on p.product_id = pc.product_ID WHERE pc.category_id = $1` 
+                    values = [this.category];
+
+            } else {
+                /*
+                    Return null if no search term or category has been set
+                */
+                return null;
+            }
+
 
             // Execute the statement
             const result = await db.query(stmt, values);

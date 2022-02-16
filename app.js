@@ -12,6 +12,7 @@ const cartRouter = require('./routes/carts')
 const productRouter = require('./routes/products')
 const orderRouter = require('./routes/orders')
 const authRouter = require('./routes/auth')
+const searchRouter = require('./routes/search')
 const checkoutRouter = require('./routes/checkout')
 const fullfillmentRouter = require('./routes/fullfillment');
 const bodyParser = require('body-parser');
@@ -38,6 +39,7 @@ app.use('/carts', cartRouter);
 app.use('/products', productRouter);
 app.use('/orders', orderRouter);
 app.use('/auth', authRouter);
+app.use('/search', searchRouter)
 app.use('/checkout', checkoutRouter);
 
 
