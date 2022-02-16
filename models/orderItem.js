@@ -14,10 +14,10 @@ module.exports = class orderItem {
         this.qty = data.quantity || 1
     }
 
-    static async create() {
+    async create() {
 
         try{
-
+            
             // Create the statement and assign the values
             const stmt = `INSERT INTO orders_products(order_id, \
                           product_id, quantity, total) VALUES \

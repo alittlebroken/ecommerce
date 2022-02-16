@@ -213,13 +213,13 @@ module.exports = class cartModel {
                           c.cart_id = $1;`;
 
             const values = [this.cartId];
-            
 
+            
             // Execute the statement
             const result = await db.query(stmt, values);
-            
-            if(result.rows.length){
-                
+
+            if(result?.rows?.length){
+
                 return result.rows;
             }
 
