@@ -196,10 +196,6 @@ describe('Checkout', () => {
             expect(response.statusCode).toBe(200);
             expect(response.body.url).toBeTruthy();
 
-            /*
-                Add more tests here to ensure the checkout portion worked
-            */
-
         });
 
         it('returns 401 if an unathorized user tries to access the url', async () => {
