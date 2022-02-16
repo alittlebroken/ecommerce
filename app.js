@@ -17,8 +17,29 @@ const checkoutRouter = require('./routes/checkout')
 const fullfillmentRouter = require('./routes/fullfillment');
 const bodyParser = require('body-parser');
 
+// Swagger API Documenting
+const swaggerJSDoc = require('swagger-jsdoc');
+
 // Create the express app server
 const app = express()
+
+// Swagger definition and config
+const swaggerDefinition = {
+    info: {
+        title: "eCommerce API docs",
+        version: "1.0.0",
+        description: "Documenting the API used for the eCommerce backend"
+    },
+    host: 'localhost:3000',
+    basePath: '/',
+}
+
+const swaggerOptions = {
+    swaggerDefinition: swaggerDefinition,
+    apis: ['./routes/*.js'],
+}
+
+const swaggerSpec = swaggerJSDoc(swaggerOptions)
 
 // JSON config
 app.use('/fulfill/order', bodyParser.raw({ type: 'application/json'} ))
@@ -31,6 +52,12 @@ app.use(express.json({ type: 'application/json'}))
 app.get('/', (req, res) => {
     res.send('Hello World')
 })
+
+// Add the swagger route
+app.get('/swagger.json', (req,res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+});
 
 // Let the apps know about the routes we intend to use
 app.use('/fulfill', fullfillmentRouter);
