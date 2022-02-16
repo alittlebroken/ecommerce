@@ -12,9 +12,7 @@ const cartRouter = require('./routes/carts')
 const productRouter = require('./routes/products')
 const orderRouter = require('./routes/orders')
 const authRouter = require('./routes/auth')
-
-// Import any models
-const userModel = require('./models/user')
+const searchRouter = require('./routes/search')
 
 // Create the express app server
 const app = express()
@@ -36,6 +34,7 @@ app.use('/carts', cartRouter);
 app.use('/products', productRouter);
 app.use('/orders', orderRouter);
 app.use('/auth', authRouter);
+app.use('/search', searchRouter)
 
 // handle unknown routes
 app.get('*',(req,res,next) => {
