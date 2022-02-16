@@ -19,6 +19,7 @@ const bodyParser = require('body-parser');
 
 // Swagger API Documenting
 const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 // Create the express app server
 const app = express()
@@ -53,11 +54,7 @@ app.get('/', (req, res) => {
     res.send('Hello World')
 })
 
-// Add the swagger route
-app.get('/swagger.json', (req,res, next) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(swaggerSpec);
-});
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Let the apps know about the routes we intend to use
 app.use('/fulfill', fullfillmentRouter);
