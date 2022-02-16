@@ -36,7 +36,8 @@
     "pg": "^8.7.1",
     "pg-format": "^1.0.4",
     "request": "^2.88.2",
-    "stripe": "^8.202.0"
+    "stripe": "^8.202.0",
+    "swagger-jsdoc": "^6.1.0"
   },
   "devDependencies": {
     "jest": "^27.5.1",
