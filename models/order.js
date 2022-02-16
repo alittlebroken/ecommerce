@@ -22,7 +22,15 @@ module.exports = class orderModel {
 
     // Add items to the order
     async addItems(items = {}){
-        this.items = items.map(item => new orderItem(item));
+        this.items.append(items.map(item => {
+            let data = {
+                item_id: item.product_id,
+                quantity: item.quantity,
+                price: item.price,
+                orderId: this.order_id
+            };
+            return new orderItem(data);
+        }));
     }
 
     // Create the order
@@ -64,7 +72,8 @@ module.exports = class orderModel {
             // add to the database
             const result = await db.query(stmt, values);
 
-            if(result.rows.length){
+            if(result?.rows?.length){
+
                 this.order_id = result.rows[0];
                 return result.rows[0];
             }
