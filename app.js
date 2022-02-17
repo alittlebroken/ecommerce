@@ -32,12 +32,12 @@ const swaggerDefinition = {
         description: "Documenting the API used for the eCommerce backend"
     },
     host: 'localhost:3000',
-    basePath: '/',
+    basePath: '/'
 }
 
 const swaggerOptions = {
     swaggerDefinition: swaggerDefinition,
-    apis: ['./routes/*.js'],
+    apis: ['./routes/*.js']
 }
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions)
