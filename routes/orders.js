@@ -97,7 +97,7 @@ router.param('orderid', (req, res, next, orderid) => {
 
 /**
  * @swagger
- * /orders
+ * /orders:
  *   get:
  *     tags:
  *       - Orders
@@ -143,7 +143,7 @@ router.get(
 
 /**
  * @swagger
- * /orders/orderid
+ * /orders/{orderid}:
  *   get:
  *     tags:
  *       - orders
@@ -196,7 +196,7 @@ router.get(
 
 /**
  * @swagger
- * /orders/orderid
+ * /orders/{orderid}:
  *   put:
  *     tags: 
  *       - orders
@@ -268,7 +268,7 @@ router.put(
 
 /**
  * @swagger
- * /orders/orderid
+ * /orders/{orderid}:
  *   delete:
  *     tags:
  *       - orders

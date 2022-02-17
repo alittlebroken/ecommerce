@@ -34,7 +34,7 @@ const UTILS = require('../utils/auth');
 
 /**
  * @swagger
- * /auth/register
+ * /auth/register:
  *   post:
  *     tags:
  *       - authentication
@@ -71,7 +71,7 @@ router.post('/register', passport.authenticate('register', { session: false }), 
 
 /**
  * @swagger
- * /auth/login
+ * /auth/login:
  *   post:
  *     tags:
  *       - authentication
@@ -90,17 +90,17 @@ router.post('/register', passport.authenticate('register', { session: false }), 
  *         type: string
  *         in: body
  *         required: true
- *      reponses:
- *        200:
- *          description: Login was successful and returns authentication token
- *          schema:
- *           $ref: '#/definitions/authToken'
- *        404:
- *          description: User was not found in system or no username or password were supplied
- *        409:
- *          description: The supplied password was incorrect
- *        500:
- *          description: There was an issue with logging in
+ *     reponses:
+ *       200:
+ *         description: Login was successful and returns authentication token
+ *         schema:
+ *          $ref: '#/definitions/authToken'
+ *       404:
+ *         description: User was not found in system or no username or password were supplied
+ *       409:
+ *         description: The supplied password was incorrect
+ *       500:
+ *         description: There was an issue with logging in
  */
 router.post('/login', async( req, res, next) => {
     passport.authenticate('login', async (err, user, info) => {

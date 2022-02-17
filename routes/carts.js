@@ -118,7 +118,7 @@ router.param('itemid', (req, res, next, itemid) => {
 
 /**
  * @swagger
- * /carts
+ * /carts:
  *   post:
  *     tags:
  *       - carts
@@ -171,7 +171,7 @@ router.post(
 
 /**
  * @swagger
- * /carts/cartid
+ * /carts/{cartid}:
  *   post:
  *     tags:
  *       - carts
@@ -235,7 +235,7 @@ router.post(
 
 /**
  * @swagger
- * /carts
+ * /carts:
  *   get:
  *     tags:
  *       - carts
@@ -266,7 +266,7 @@ router.get(
 
 /**
  * @swagger
- * /carts/cartid
+ * /carts/{cartid}:
  *   get:
  *     tags:
  *       - carts
@@ -316,7 +316,7 @@ router.get(
 
 /**
  * @swagger
- * /carts/cartid/items/itemid
+ * /carts/{cartid}/items/{itemid}:
  *   put:
  *     tags:
  *       - carts
@@ -385,7 +385,7 @@ router.put(
 
 /**
  * @swagger
- * /carts/cartid
+ * /carts/{cartid}:
  *   delete:
  *     tags:
  *       - carts
@@ -435,7 +435,7 @@ router.delete(
 
 /**
  * @swagger
- * /carts/cartid/items/itemid
+ * /carts/{cartid}/items/{itemid}:
  *   delete:
  *     tags:
  *       - carts

@@ -36,27 +36,27 @@ const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET
 
 /**
  * @swagger
- * /fulfill/order
- *    post:
- *      tags:
- *        - fulfillment
- *        - orders
- *      description: Creates an order once the Stripe payment system notifies us that the user was charged for our goods
- *      produces:
+ * /fulfill/order:
+ *   post:
+ *     tags:
+ *       - fulfillment
+ *       - orders
+ *     description: Creates an order once the Stripe payment system notifies us that the user was charged for our goods
+ *     produces:
  *       - application/json
- *      parameters:
- *        - name: stripePayload
- *          type: object
- *          description: Stripe session object
- *          in: body
- *          required: true
- *          schema:
- *            $ref: '#/definitions/stripeSession'
- *        - name: stripeSignature
- *          type: string
- *          description: Signature sent so we know request came from the strip payment system and not a third party
- *          in: header
- *          required: true
+ *     parameters:
+ *       - name: stripePayload
+ *         type: object
+ *         description: Stripe session object
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/stripeSession'
+ *       - name: stripeSignature
+ *         type: string
+ *         description: Signature sent so we know request came from the strip payment system and not a third party
+ *         in: header
+ *         required: true
  *     responses:
  *       200:
  *         description: Notifies stripe the order was fulfilled

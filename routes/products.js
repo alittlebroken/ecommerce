@@ -61,7 +61,7 @@ router.param('productId', (req, res, next, productId) => {
 
 /**
  * @swagger
- * /products
+ * /products:
  *   post:
  *     tags:
  *       - Products
@@ -138,7 +138,7 @@ router.post(
 
 /**
  * @swagger
- * /products
+ * /products:
  *   get:
  *     tags:
  *       - products
@@ -180,7 +180,7 @@ router.get('/', async (req, res, next) => {
 
 /**
  * @swagger
- * /products/productid
+ * /products/{productid}:
  *   get:
  *     tags:
  *       - products
@@ -224,7 +224,7 @@ router.get('/:productId', async (req, res, next) => {
 
 /**
  * @swagger
- * /products/productid
+ * /products/{productid}:
  *   put:
  *     tags:
  *       - products
@@ -285,7 +285,7 @@ router.put(
 
 /**
  * @swagger
- * /products/productId
+ * /products/{productId}:
  *   delete:
  *     tags:
  *       - products
@@ -334,18 +334,18 @@ router.delete(
 
 /**
  * @swagger
- * /products
- *    delete:
- *      tags:
- *        - products
- *      description: Deletes all products
- *      produces:
- *        - application/json
- *      responses:
- *        200:
- *          description: Successfully deletes all products
- *        400:
- *          description: Unable to delete the products
+ * /products:
+ *   delete:
+ *     tags:
+ *       - products
+ *     description: Deletes all products
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Successfully deletes all products
+ *       400:
+ *         description: Unable to delete the products
  */
 router.delete(
     '/',

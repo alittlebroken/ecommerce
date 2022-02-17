@@ -155,7 +155,7 @@ router.get(
 
 /**
  * @swagger
- * /users/userid:
+ * /users/{userid}:
  *   get:
  *     tags:
  *       - Users
@@ -257,7 +257,7 @@ router.post(
 
 /**
  * @swagger
- * /users/userid:
+ * /users/{userid}:
  *   delete:
  *     tags:
  *       - Users
@@ -311,8 +311,8 @@ router.delete(
 
 /**
  * @swagger
- * /users/userid:
- *  put:
+ * /users/{userid}:
+ *   put:
  *     tags:
  *       - Users
  *     description: Update the user
@@ -383,8 +383,8 @@ router.put(
 
 /**
  * @swagger
- * /users/userid/orders:
- *  get:
+ * /users/{userid}/orders:
+ *   get:
  *     tags:
  *       - Users
  *       - Orders
@@ -432,8 +432,8 @@ router.get(
 
 /**
  * @swagger
- * /users/userid/orders/orderid:
- *  get:
+ * /users/{userid}/orders/{orderid}:
+ *   get:
  *     tags:
  *       - Users
  *       - Orders

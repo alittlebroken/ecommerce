@@ -47,7 +47,7 @@ router.param('cartid',(req, res, next, cartid) => {
 
 /**
  * @swagger
- * /checkout/cartid
+ * /checkout/{cartid}:
  *   post:
  *     tags:
  *       - checkout
