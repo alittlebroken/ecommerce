@@ -11,6 +11,61 @@ const UTILS = require('../utils/auth');
 const orderModel = require('../models/order')
 const orderItemModel = require('../models/orderItem')
 
+/**
+ * @swagger
+ * definitions:
+ *   Order:
+ *     type: object
+ *     properties:
+ *       order_id:
+ *         type: integer
+ *       user_id:
+ *         type: integer
+ *       order_date:
+ *         type: string
+ *         format: date-time
+ *       order_paid_for:
+ *         type: boolean
+ *       order_notes:
+ *         type: string
+ *       order_shipped:
+ *         type: string
+ *         format: date-time
+ *       order_arrived:
+ *         type: string
+ *         format: date-time
+ *       order_total_cost:
+ *         type: number
+ *         format: float
+ *   ordersProducts:
+ *     type: object
+ *     properties:
+ *       order_id: 
+ *         type: integer
+ *       product_id:
+ *         type: integer
+ *       quantity:
+ *         type: integer
+ *       total:
+ *         type: number
+ *         format: float
+ *   orderUpdate:
+ *     type: object
+ *     properties:
+ *       updates:
+ *         type: array
+ *         items:
+ *           properties:
+ *             column:
+ *               type: string
+ *             value:
+ *               oneOf:
+ *                 - type: string
+ *                 - type: integer
+ *                 - type: number
+ *                 - type: boolean  
+ */
+
 // Check the parameters used
 router.param('orderid', (req, res, next, orderid) => {
 
@@ -38,9 +93,25 @@ router.param('orderid', (req, res, next, orderid) => {
 
 });
 
-// Create the routes
 
-// Route for getting all orders, ADMINS only
+
+/**
+ * @swagger
+ * /orders
+ *   get:
+ *     tags:
+ *       - Orders
+ *     description: Retrieve all orders
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Returns an array of orders
+ *         schema:
+ *           $ref: '#/definitions/Orders'
+ *       404:
+ *         description: Unable to find any orders
+ */
 router.get(
     '/', 
     passport.authenticate('jwt', { session: false }), 
@@ -70,7 +141,29 @@ router.get(
 
 });
 
-// Route for getting an individual Order from the DB, ADMINS only
+/**
+ * @swagger
+ * /orders/orderid
+ *   get:
+ *     tags:
+ *       - orders
+ *     description: Retrieve an individual order
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       orderid:
+ *         type: integer
+ *         description: The ID of the order to retrieve
+ *         in: path
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Returns the desired product
+ *         schema:
+ *           $ref: '#/definitions/Order'
+ *       404:
+ *         description: Unable to find the order requested
+ */
 router.get(
     '/:orderid',
     passport.authenticate('jwt', { session: false }), 
@@ -101,7 +194,36 @@ router.get(
 
 });
 
-// Update an order, ADMINS
+/**
+ * @swagger
+ * /orders/orderid
+ *   put:
+ *     tags: 
+ *       - orders
+ *   description: Update the required order
+ *   produces:
+ *       - application/json
+ *   parameters:
+ *     - name: orderid
+ *       type: integer
+ *       description: The ID of the order to be updated
+ *       in: path
+ *       required: true
+ *     - name: updates
+ *       type: array
+ *       description: An array of updates ot be applied
+ *       in: body
+ *       required: true
+ *       schema:
+ *         $ref: '#/definitions/orderUpdate'
+ *   responses:
+ *     201:
+ *       description: Successfully updates order and returns it back
+ *       schema:
+ *         $ref: '#/definitions/Order'
+ *     404:
+ *       description: Unable to find and order to update
+ */
 router.put(
     '/:orderid',
     passport.authenticate('jwt', { session: false }), 
@@ -144,7 +266,29 @@ router.put(
 
 });
 
-// Delete an order, ADMINS only
+/**
+ * @swagger
+ * /orders/orderid
+ *   delete:
+ *     tags:
+ *       - orders
+ *     description: Delete a specific order
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: orderid
+ *         type: integer
+ *         description: The ID of an order to be deleted
+ *         in: path
+ *         required: true
+ *     responses:
+ *       201: 
+ *         description: Successfully deletes the order and returns it
+ *         schema:
+ *           $ref: '#/definitions/Order'
+ *       404:
+ *         description: Unable to find an order to delete
+ */
 router.delete(
     '/:orderid',
     passport.authenticate('jwt', { session: false }), 
@@ -174,6 +318,5 @@ router.delete(
     }
 
 });
-
 
 module.exports = router;

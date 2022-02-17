@@ -8,6 +8,66 @@ const passport = require('passport')
 const ROLES = require('../utils/roles');
 const UTILS = require('../utils/auth');
 
+/**
+ * @swagger
+ * definitions:
+ *    User:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: integer
+ *          format: int64
+ *        email:
+ *          type: string
+ *        password:
+ *          type: string
+ *        is_admin:
+ *          type: boolean
+ *        is_logged_in:
+ *          type: boolean
+ *        last_logon:
+ *          type: string
+ *          format: date-time
+ *        roles:
+ *          type: string
+ *    Update:
+ *        type: object
+ *        properties:
+ *          table_key_col:
+ *            type: string
+ *          data:
+ *            type: array
+ *            items:
+ *              properties:
+ *                column:
+ *                 type: string
+ *                value:
+ *                 type: string     
+ *    Order:
+ *        type: object
+ *        properties:
+ *          order_id:
+ *            type: integer
+ *          user_id:
+ *            type: integer
+ *          order_date:
+ *            type: string
+ *            format: date-time
+ *          order_paid_for:
+ *            type: boolean
+ *          order_notes:
+ *            type: string
+ *          order_shipped:
+ *            type: string
+ *            format: date-time
+ *          order_arrived:
+ *            type: string
+ *            format: date-time
+ *          order_total_cost:
+ *            type: number
+ *            format: float   
+ */
+
 // Check that any required params are set correctly
 router.param("userid", (req, res, next, userid) => {
 
@@ -62,7 +122,21 @@ router.param("orderid", (req, res, next, orderid) => {
 
 });
 
-// Get a list of all users, admins only
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     tags:
+ *       - Users
+ *     description: returns a list of users
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array of users
+ *         schema:
+ *           $ref: '#/definitions/User'      
+ */
 router.get(
     '/',
     passport.authenticate('jwt', { session: false }), 
@@ -79,7 +153,29 @@ router.get(
    
 });
 
-// Get an individuals ID from the database, authed users only
+/**
+ * @swagger
+ * /users/userid:
+ *   get:
+ *     tags:
+ *       - Users
+ *     description: returns a list of users
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: userid
+ *         description: ID of a user to retrieve
+ *         in: path
+ *         required: true
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: Returns the specified user
+ *         schema:
+ *           $ref: '#/definitions/User'
+ *       404:
+ *         description: No records found with the specified parameters 
+ */
 router.get(
     '/:userid',
     passport.authenticate('jwt', { session: false }), 
@@ -99,7 +195,28 @@ router.get(
 
 });
 
-// Add a user to the database via protected route for admins only
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     tags:
+ *       - Users
+ *     description: create a user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: data
+ *         description: user object
+ *         in: body
+ *         required: true
+ *         schema:
+ *          $ref: '#/definitions/User'
+ *     responses:
+ *       201:
+ *         description: Successfully created
+ *       404:
+ *         description: One or more values are missing from the request 
+ */
 router.post(
     '/', 
     passport.authenticate('jwt', { session: false }), 
@@ -138,7 +255,27 @@ router.post(
 
 });
 
-// Delete the user via a protected route for admin
+/**
+ * @swagger
+ * /users/userid:
+ *   delete:
+ *     tags:
+ *       - Users
+ *     description: delete a user 
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: userid
+ *         description: ID of the user to delete
+ *         in: path
+ *         required: true
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: Record #userid deleted
+ *       404:
+ *         description: The specified record does not exist 
+ */
 router.delete(
     '/:userid', 
     passport.authenticate('jwt', { session: false }), 
@@ -172,7 +309,33 @@ router.delete(
 
 });
 
-// Update the user, authorized users only
+/**
+ * @swagger
+ * /users/userid:
+ *  put:
+ *     tags:
+ *       - Users
+ *     description: Update the user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: userid
+ *         description: ID of the user to update
+ *         in: path
+ *         required: true
+ *         type: integer
+ *       - name: data
+ *         description: update object
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Update'
+ *     responses:
+ *       200:
+ *         description: Record #userid deleted
+ *       404:
+ *         description: The specified record does not exist 
+ */
 router.put(
     '/:userid', 
     passport.authenticate('jwt', { session: false }), 
@@ -218,7 +381,30 @@ router.put(
 
 });
 
-// Get all orders for the specified user for authorized users only
+/**
+ * @swagger
+ * /users/userid/orders:
+ *  get:
+ *     tags:
+ *       - Users
+ *       - Orders
+ *     description: Gett all orders associated with a user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: userid
+ *         description: ID of the user to get orders for
+ *         in: path
+ *         required: true
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: An array of orders is returned for the user
+ *         schema:
+ *           $ref: '#/definitions/Order'
+ *       404:
+ *         description: No records were found with the specified parameters 
+ */
 router.get(
     '/:userid/orders', 
     passport.authenticate('jwt', { session: false }), 
@@ -244,7 +430,35 @@ router.get(
 
 });
 
-// Get an individual order for a user, only for authorized users
+/**
+ * @swagger
+ * /users/userid/orders/orderid:
+ *  get:
+ *     tags:
+ *       - Users
+ *       - Orders
+ *     description: Get a users specific order
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: userid
+ *         description: ID of the user to get orders for
+ *         in: path
+ *         required: true
+ *         type: integer
+ *       - name: orderid
+ *         description: ID of the order being retrieved
+ *         in: path
+ *         required: true
+ *         type: integer
+ *     responses:
+ *       200:
+ *         description: An array of the specified order
+ *         schema:
+ *           $ref: '#/definitions/Order'
+ *       404:
+ *         description: No records were found with the specified parameters 
+ */
 router.get(
     '/:userid/orders/:orderid', 
     passport.authenticate('jwt', { session: false }), 

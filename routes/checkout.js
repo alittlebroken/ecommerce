@@ -45,7 +45,25 @@ router.param('cartid',(req, res, next, cartid) => {
 
 });
 
-// Checkout session
+/**
+ * @swagger
+ * /checkout/cartid
+ *   post:
+ *     tags:
+ *       - checkout
+ *     description: Performs checkout of a users cart and sends the cart data to stripe
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: cartid
+ *         type: integer
+ *         description: The ID of the users cart
+ *         in: path
+ *         required: true
+ *     responses:
+ *       404:
+ *         description: Unable to find the specified cart
+ */
 router.post(
     `/:cartid`,
     passport.authenticate('jwt', { session: false }), 
