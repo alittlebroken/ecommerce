@@ -1,14 +1,11 @@
 // Load env vars
 require('dotenv').config();
 
-const { Pool, Client } = require('pg')
+const { Pool, Client } = require('pg');
+const connectionString = process.env.DATABASE_URL;
 
 const pool = new Pool({
-    user: process.env.DBUSER,
-    database: process.env.DBNAME,
-    password: process.env.DBPASSWORD,
-    port: parseInt(process.env.DBPORT),
-    host: process.env.DBHOST
+    connectionString,
 });
 
 // Exports
