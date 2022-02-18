@@ -9,7 +9,7 @@
     ]
   },
   "scripts": {
-    "start": "nodemon ./server.js",
+    "start": "node ./server.js",
     "test": "jest --silent=false --no-cache --runInBand --detectOpenHandles"
   },
   "dependencies": {
