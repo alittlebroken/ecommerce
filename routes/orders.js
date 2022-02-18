@@ -146,7 +146,7 @@ router.get(
  * /orders/{orderid}:
  *   get:
  *     tags:
- *       - orders
+ *       - Orders
  *     description: Retrieve an individual order
  *     produces:
  *       - application/json
@@ -199,7 +199,7 @@ router.get(
  * /orders/{orderid}:
  *   put:
  *     tags: 
- *       - orders
+ *       - Orders
  *   description: Update the required order
  *   produces:
  *       - application/json
@@ -271,7 +271,7 @@ router.put(
  * /orders/{orderid}:
  *   delete:
  *     tags:
- *       - orders
+ *       - Orders
  *     description: Delete a specific order
  *     produces:
  *       - application/json

@@ -50,7 +50,7 @@ router.param('cartid',(req, res, next, cartid) => {
  * /checkout/{cartid}:
  *   post:
  *     tags:
- *       - checkout
+ *       - Checkout
  *     description: Performs checkout of a users cart and sends the cart data to stripe
  *     produces:
  *       - application/json

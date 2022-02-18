@@ -121,7 +121,7 @@ router.param('itemid', (req, res, next, itemid) => {
  * /carts:
  *   post:
  *     tags:
- *       - carts
+ *       - Carts
  *     description: Creates a new cart for a user
  *     produces:
  *       - application/json
@@ -174,7 +174,7 @@ router.post(
  * /carts/{cartid}:
  *   post:
  *     tags:
- *       - carts
+ *       - Carts
  *     description: Adds a product to the users cart
  *     produces:
  *       - application/json
@@ -238,7 +238,7 @@ router.post(
  * /carts:
  *   get:
  *     tags:
- *       - carts
+ *       - Carts
  *     description: Returns all carts
  *     produces:
  *       - application/json
@@ -269,7 +269,7 @@ router.get(
  * /carts/{cartid}:
  *   get:
  *     tags:
- *       - carts
+ *       - Carts
  *     description: gets all items for a cart
  *     produces:
  *       - application/json
@@ -319,7 +319,7 @@ router.get(
  * /carts/{cartid}/items/{itemid}:
  *   put:
  *     tags:
- *       - carts
+ *       - Carts
  *     description: Updates an item in the cart
  *     produces:
  *       - application.json
@@ -388,7 +388,7 @@ router.put(
  * /carts/{cartid}:
  *   delete:
  *     tags:
- *       - carts
+ *       - Carts
  *     description: Deletes a cart
  *     produces:
  *       - application/json
@@ -438,7 +438,7 @@ router.delete(
  * /carts/{cartid}/items/{itemid}:
  *   delete:
  *     tags:
- *       - carts
+ *       - Carts
  *     description: Deletes an item from the cart
  *     produces:
  *       - application/json

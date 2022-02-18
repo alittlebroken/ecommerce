@@ -32,7 +32,7 @@ const productModel = require('../models/products')
  * /search:
  *   post:
  *     tags:
- *       - search
+ *       - Search
  *     description: Returns a list of products
  *     produces:
  *       - application/json

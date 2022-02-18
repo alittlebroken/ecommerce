@@ -141,7 +141,7 @@ router.post(
  * /products:
  *   get:
  *     tags:
- *       - products
+ *       - Products
  *     description: Get a list of the products
  *     produces:
  *       - application/json
@@ -183,7 +183,7 @@ router.get('/', async (req, res, next) => {
  * /products/{productid}:
  *   get:
  *     tags:
- *       - products
+ *       - Products
  *     description: Retrieve a specific product
  *     produces:
  *       - application/json
@@ -227,7 +227,7 @@ router.get('/:productId', async (req, res, next) => {
  * /products/{productid}:
  *   put:
  *     tags:
- *       - products
+ *       - Products
  *     description: Update the specified product
  *     produces:
  *       - application:/json
@@ -288,7 +288,7 @@ router.put(
  * /products/{productId}:
  *   delete:
  *     tags:
- *       - products
+ *       - Products
  *     description: Delete the specified product
  *     produces:
  *       - application/json
@@ -337,7 +337,7 @@ router.delete(
  * /products:
  *   delete:
  *     tags:
- *       - products
+ *       - Products
  *     description: Deletes all products
  *     produces:
  *       - application/json

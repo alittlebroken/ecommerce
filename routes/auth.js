@@ -37,8 +37,8 @@ const UTILS = require('../utils/auth');
  * /auth/register:
  *   post:
  *     tags:
- *       - authentication
- *       - user
+ *       - Authentication
+ *       - User
  *     description: Register a new user 
  *     produces:
  *       - application/json
@@ -74,8 +74,8 @@ router.post('/register', passport.authenticate('register', { session: false }), 
  * /auth/login:
  *   post:
  *     tags:
- *       - authentication
- *       - user
+ *       - Authentication
+ *       - User
  *     description: Logs in a user
  *     produces:
  *       - application/json

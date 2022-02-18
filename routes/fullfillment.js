@@ -39,8 +39,8 @@ const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET
  * /fulfill/order:
  *   post:
  *     tags:
- *       - fulfillment
- *       - orders
+ *       - Fulfillment
+ *       - Orders
  *     description: Creates an order once the Stripe payment system notifies us that the user was charged for our goods
  *     produces:
  *       - application/json
