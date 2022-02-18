@@ -11,6 +11,27 @@ const UTILS = require('../utils/auth');
 // Make use of required Models
 const productModel = require('../models/products')
 
+/**
+ * @swagger
+ * definitions:
+ *   Product:
+ *     type: object
+ *     properties:
+ *       product_id:
+ *         type: integer
+ *       name:
+ *         type: string
+ *       description:
+ *         type: string
+ *       price:
+ *         type: numeric
+ *         format: float
+ *       image_url:
+ *         type: string
+ *       in_stock:
+ *         type: boolean
+ */
+
 // Check the productId param is OK and add to the request body
 router.param('productId', (req, res, next, productId) => {
 
@@ -38,7 +59,31 @@ router.param('productId', (req, res, next, productId) => {
 
 });
 
-// Handle the POST route, only for admins
+/**
+ * @swagger
+ * /products:
+ *   post:
+ *     tags:
+ *       - Products
+ *     description: Create a new product
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: data
+ *         description: Contaisn various values to create a new product
+ *         in: body
+ *         type: object
+ *         schema:
+ *           $ref: '#/definitions/Product'
+ *     responses:
+ *       201:
+ *         description: Successfully created product
+ *       400:
+ *         description: Supplied values in incorrect format
+ *       404:
+ *         description: Required values are missing
+ *       
+ */
 router.post(
     '/',
     passport.authenticate('jwt', { session: false }), 
@@ -91,7 +136,23 @@ router.post(
 
 });
 
-// Handle the GET all route
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     tags:
+ *       - Products
+ *     description: Get a list of the products
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *        description: Returns an array of products
+ *        schema:
+ *          $ref: '#/definitions/Product'
+ *       404:
+ *         description: no products found
+ */
 router.get('/', async (req, res, next) => {
 
     // get the data from the DB
@@ -117,7 +178,23 @@ router.get('/', async (req, res, next) => {
 
 });
 
-// Get a product by ID
+/**
+ * @swagger
+ * /products/{productid}:
+ *   get:
+ *     tags:
+ *       - Products
+ *     description: Retrieve a specific product
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array containing the required product
+ *         schema:
+ *           $ref: '#/definitions/Product'
+ *       404:
+ *         description: No product found
+ */
 router.get('/:productId', async (req, res, next) => {
 
     // Get the required data from the DB
@@ -145,7 +222,33 @@ router.get('/:productId', async (req, res, next) => {
 
 });
 
-// Update a product, admins only
+/**
+ * @swagger
+ * /products/{productid}:
+ *   put:
+ *     tags:
+ *       - Products
+ *     description: Update the specified product
+ *     produces:
+ *       - application:/json
+ *     parameters:
+ *       - name: data
+ *         description: Product object to update
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Product'
+ *     responses:
+ *       200:
+ *         description: returns the found product
+ *         schema:
+ *           $ref: '#/definitions/Product'
+ *       400:
+ *         description: Unable to update the product in the database
+ *       404:
+ *         description: Unable to find the product to be updated      
+ *         
+ */
 router.put(
     '/:productId',
     passport.authenticate('jwt', { session: false }), 
@@ -180,7 +283,28 @@ router.put(
 
 });
 
-// Delete a product from the database, again admin only
+/**
+ * @swagger
+ * /products/{productId}:
+ *   delete:
+ *     tags:
+ *       - Products
+ *     description: Delete the specified product
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: productId
+ *         description: ID of the product to be deleted
+ *         in: path
+ *         required: true
+ *     responses:
+ *       201:
+ *         description: Successfully deletes product and returns deleted product
+ *         schema:
+ *            $ref: '#/definitions/Product'
+ *       404:
+ *         description: Unable to find the requested product that is to be deleted
+ */
 router.delete(
     '/:productId',
     passport.authenticate('jwt', { session: false }), 
@@ -208,7 +332,21 @@ router.delete(
 
 });
 
-// Delete all products from the DB, admin user only
+/**
+ * @swagger
+ * /products:
+ *   delete:
+ *     tags:
+ *       - Products
+ *     description: Deletes all products
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Successfully deletes all products
+ *       400:
+ *         description: Unable to delete the products
+ */
 router.delete(
     '/',
     passport.authenticate('jwt', { session: false }), 

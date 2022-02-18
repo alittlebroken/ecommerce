@@ -14,7 +14,51 @@ const userModel = require('../models/user')
 const ROLES = require('../utils/roles');
 const UTILS = require('../utils/auth');
 
-// Signup route
+/**
+ * @swagger
+ * definitions:
+ *   authToken:
+ *     type: object
+ *     properties:
+ *       _id:
+ *         type: integer
+ *       email:
+ *         type: string
+ *       roles:
+ *         type: string
+ *       token_secret:
+ *         type: string
+ *       expiresIn:
+ *         type: string
+ */
+
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *       - User
+ *     description: Register a new user 
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: email
+ *         description: Email address of the user being registered
+ *         type: string
+ *         in: body
+ *         required: true
+ *       - name: password
+ *         description: Password the user chose to be registered with
+ *         type: string
+ *         in: body
+ *         required: true
+ *     responses:
+ *       201:
+ *         description: Registration successful
+ *       409:
+ *         description: Email address was already registered
+ */
 router.post('/register', passport.authenticate('register', { session: false }), async ( req, res, next) => {
 
     res.status(201).json({
@@ -25,7 +69,39 @@ router.post('/register', passport.authenticate('register', { session: false }), 
     
 });
 
-// Login route
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *       - User
+ *     description: Logs in a user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: email
+ *         description: Email address of the user
+ *         type: string
+ *         in: body
+ *         required: true
+ *       - name: password
+ *         description: Password for the user
+ *         type: string
+ *         in: body
+ *         required: true
+ *     reponses:
+ *       200:
+ *         description: Login was successful and returns authentication token
+ *         schema:
+ *          $ref: '#/definitions/authToken'
+ *       404:
+ *         description: User was not found in system or no username or password were supplied
+ *       409:
+ *         description: The supplied password was incorrect
+ *       500:
+ *         description: There was an issue with logging in
+ */
 router.post('/login', async( req, res, next) => {
     passport.authenticate('login', async (err, user, info) => {
         try{
@@ -70,21 +146,6 @@ router.post('/login', async( req, res, next) => {
             return next(error);
         };
     })(req, res, next);
-});
-
-// Test secure route
-router.get(
-    '/profile', 
-    passport.authenticate('jwt', { session: false }), 
-    UTILS.checkUserRoles(ROLES.Customer),
-    (req,res,next) => {
-
-    res.json({
-        message: "You loaded your profile",
-        user: req.user,
-        token: req.query.secret_token 
-    });
-
 });
 
 module.exports = router;

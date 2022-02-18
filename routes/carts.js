@@ -12,6 +12,54 @@ const UTILS = require('../utils/auth');
 // Make use of required Models
 const cartModel = require('../models/carts')
 
+/**
+ * @swagger
+ * definitions:
+ *   Item:
+ *     type: array
+ *     items:
+ *       properties:
+ *         product_id:
+ *           type: integer
+ *   cartItem:
+ *     type: object
+ *     properties:
+ *       cart_id:
+ *         type: integer
+ *       product_id:
+ *         type: integer
+ *       quantity: 
+ *         type: integer
+ *   Cart:
+ *     type: object
+ *     properties:
+ *       cart_id:
+ *         type: integer
+ *       user_id:
+ *         type: integer
+ *   cartProduct:
+ *     type: object
+ *     properties:
+ *       email:
+ *         type: string
+ *       cart_id:
+ *         type: integer
+ *       quantity:
+ *         type: integer
+ *       product_id:
+ *         type: integer
+ *       name:
+ *         type: string
+ *       description:
+ *         type: string
+ *       price:
+ *         type: number
+ *         format: float
+ *       image_url:
+ *         type: string
+ *       in_stock:
+ *         type: boolean
+ */
 
 // Check all params used in this route
 // ID for a cart
@@ -68,10 +116,29 @@ router.param('itemid', (req, res, next, itemid) => {
 
 });
 
-// Create the routes
-
-// POST 
-// Create a new cart
+/**
+ * @swagger
+ * /carts:
+ *   post:
+ *     tags:
+ *       - Carts
+ *     description: Creates a new cart for a user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       userId:
+ *         type: integer
+ *         description: The ID of the user to create a cart for
+ *         in: body
+ *         required: true
+ *     responses:
+ *       201:
+ *         description: Successfully creates cart and returns cart ID
+ *       400: 
+ *         description: A cart for the user already exists
+ *       404:
+ *         description: Unable to find a user to create a cart for   
+ */
 router.post(
     '/',
     passport.authenticate('jwt', { session: false }), 
@@ -102,7 +169,36 @@ router.post(
  
 });
 
-// Add a product to the cart
+/**
+ * @swagger
+ * /carts/{cartid}:
+ *   post:
+ *     tags:
+ *       - Carts
+ *     description: Adds a product to the users cart
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: cartid
+ *         description: The ID of the cart the item is to be added to
+ *         type: integer
+ *         in: path
+ *         required: true
+ *       - name: items
+ *         description: An array of one or more items to add to the cart
+ *         type: array
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Item'
+ *     responses:
+ *       201:
+ *         description: Successfully added the product to the cart and returns the item added
+ *         schema:
+ *           $ref: '#/definitions/cartItem'
+ *       404: 
+ *         description: Unable to find the cart or the product to add to it
+ */
 router.post(
     '/:cartid',
     passport.authenticate('jwt', { session: false }), 
@@ -137,7 +233,21 @@ router.post(
 });
 
 
-// Get all carts in the database
+/**
+ * @swagger
+ * /carts:
+ *   get:
+ *     tags:
+ *       - Carts
+ *     description: Returns all carts
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Returns all found carts
+ *         schema:
+ *           $ref: '#/definitions/Cart'
+ */
 router.get(
     '/', 
     passport.authenticate('jwt', { session: false }), 
@@ -154,7 +264,29 @@ router.get(
 
 });
 
-// Get a certain carts contents
+/**
+ * @swagger
+ * /carts/{cartid}:
+ *   get:
+ *     tags:
+ *       - Carts
+ *     description: gets all items for a cart
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: cartid
+ *         description: The ID of the cart to get the items for
+ *         in: path
+ *         type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: returns an array of items for the cart
+ *         schema:
+ *           $ref: '#/definitions/cartProduct'
+ *       404:
+ *         description: Either there is no cart with the specified ID or it has no items
+ */
 router.get(
     '/:cartid',
     passport.authenticate('jwt', { session: false }), 
@@ -182,7 +314,39 @@ router.get(
 
 });
 
-// Update a carts contents
+/**
+ * @swagger
+ * /carts/{cartid}/items/{itemid}:
+ *   put:
+ *     tags:
+ *       - Carts
+ *     description: Updates an item in the cart
+ *     produces:
+ *       - application.json
+ *     parameters:
+ *       - name: cartid
+ *         description: ID of the cart
+ *         type: integer
+ *         in: path
+ *         required: true
+ *       - name: itemid
+ *         description: ID of the item to be updated
+ *         type: integer
+ *         in: path
+ *         required: true
+ *       - name: quantity
+ *         type: integer
+ *         description: The new quantity of the item
+ *         in: body
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Successfully updated the item and returns the updated record
+ *         schema:
+ *           $ref: '#/definitions/cartItem' 
+ *       404:
+ *         description: Either the cart or item could not be found
+ */
 router.put(
     '/:cartid/items/:itemid',
     passport.authenticate('jwt', { session: false }), 
@@ -219,7 +383,29 @@ router.put(
 
 });
 
-// Delete a carts contents
+/**
+ * @swagger
+ * /carts/{cartid}:
+ *   delete:
+ *     tags:
+ *       - Carts
+ *     description: Deletes a cart
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: cartid
+ *         description: The ID of the cart
+ *         type: integer
+ *         in: path
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Successfully deletes the cart and returns it
+ *         schema:
+ *           $ref: '#/definitions/Cart'
+ *       404:
+ *         description: Unable to find the cart to delete
+ */
 router.delete(
     '/:cartid',
     passport.authenticate('jwt', { session: false }), 
@@ -247,7 +433,34 @@ router.delete(
     }
 });
 
-// Delete a specific item from the cart
+/**
+ * @swagger
+ * /carts/{cartid}/items/{itemid}:
+ *   delete:
+ *     tags:
+ *       - Carts
+ *     description: Deletes an item from the cart
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: cartid
+ *         description: ID of the cart
+ *         type: integer
+ *         in: path
+ *         required: true
+ *       - name: itemid
+ *         description: IF of the item
+ *         type: integer
+ *         in: path
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Successfully removed the item and returns the item deleted
+ *         schema:
+ *           $ref: '#/definitions/cartItem'
+ *       404:
+ *         description: Unable to find the cart or item
+ */
 router.delete(
     '/:cartid/items/:itemid',
     passport.authenticate('jwt', { session: false }), 
