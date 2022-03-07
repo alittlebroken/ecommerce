@@ -3,6 +3,9 @@ require('dotenv').config()
 
 let express = require('express')
 
+// Cors import
+const cors = require('cors');
+
 // Import the authentication module
 require('./config/passport')
 
@@ -23,6 +26,9 @@ const swaggerUi = require('swagger-ui-express');
 
 // Create the express app server
 const app = express()
+
+// Apply cors
+app.use(cors);
 
 // Swagger definition and config
 const swaggerDefinition = {
