@@ -1,7 +1,7 @@
 // Imports for the route
 const express = require('express');
 const router = express.Router()
-
+const cors = require('cors');
 
 // Make use of required Models
 const productModel = require('../models/products')
@@ -53,11 +53,13 @@ const productModel = require('../models/products')
  *       404:
  *         description: When no product found returns an empty array
  */
-router.post('/', async (req, res, next) => {
+router.post('/', cors(), async (req, res, next) => {
 
     // Extract search terms and category from the request
     const terms = req.body.searchTerms;
     const category = req.query.category;
+
+    console.log(`/search`)
 
     try{
 
