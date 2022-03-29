@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
+const cartModel = require('./carts');
+
 module.exports  = class userModel {
 
     // Class constructor
@@ -13,8 +15,9 @@ module.exports  = class userModel {
         this.password = data.password || null,
         this.is_admin = data.is_admin || false,
         this.is_logged_in = data.is_logged_in || false,
-        this.last_logon = data.last_logon || null
-        this.roles = data.roles || 'Customer'
+        this.last_logon = data.last_logon || null,
+        this.roles = data.roles || 'Customer',
+        this.cartId = data.cartId || null
     }
 
     // find all users
@@ -119,8 +122,30 @@ module.exports  = class userModel {
             if(result?.rows?.length){
                 // Populate the ID after we have created a user
                 this.id = result.rows[0].user_id;
+
+                // generate a new cart for the user as well
+                    const cart = new cartModel({ userId: this.id });
+                    const cartResult = await cart.create();
+                    
+                    if(cartResult?.cart_id){
+                        
+                        this.cartId = cartResult.cart_id;
+                    } 
+
                 // Send back the result to the calling script
-                return result.rows[0];
+                const user = {
+                    user_id: result.rows[0].user_id,
+                    email: result.rows[0].email,
+                    forename: result.rows[0].forename,
+                    surname: result.rows[0].surname,
+                    join_date: result.rows[0].join_date,
+                    last_logon: result.rows[0].last_logon,
+                    enabled: result.rows[0].enabled,
+                    contact_number: result.rows[0].contact_number,
+                    roles: result.rows[0].roles,
+                    cart_id: this.cartId,
+                }
+                return user;
             }
 
             return null;
