@@ -6,6 +6,9 @@ let express = require('express')
 // Cors import
 const cors = require('cors');
 
+// Korgan logging
+const morgan = require('morgan');
+
 // Import the authentication module
 require('./config/passport')
 
@@ -28,7 +31,10 @@ const swaggerUi = require('swagger-ui-express');
 const app = express()
 
 // Apply cors
-app.use(cors);
+app.use(cors());
+
+// Apply logging
+app.use(morgan('combined'));
 
 // Swagger definition and config
 const swaggerDefinition = {
@@ -37,7 +43,7 @@ const swaggerDefinition = {
         version: "1.0.0",
         description: "Documenting the API used for the eCommerce backend"
     },
-    host: 'localhost:3000',
+    host: 'localhost:5000',
     basePath: '/'
 }
 
@@ -69,7 +75,7 @@ app.use('/carts', cartRouter);
 app.use('/products', productRouter);
 app.use('/orders', orderRouter);
 app.use('/auth', authRouter);
-app.use('/search', searchRouter)
+app.use('/search', searchRouter);
 app.use('/checkout', checkoutRouter);
 
 
