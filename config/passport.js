@@ -17,12 +17,6 @@ passport.use(
 
             try {
 
-                // Assign the data to be passed in
-                const userData = {
-                    email,
-                    password
-                };
-
                 const newUser = new userModel({
                     email: email,
                     password: password,
@@ -33,7 +27,6 @@ passport.use(
                 return done(null, user);
 
             } catch(err) {
-                
                 const error = new Error('The supplied email has already been registered.');
                 error.status = 409;
                 done(error);
