@@ -134,7 +134,8 @@ router.post('/login', async( req, res, next) => {
                 const body = { 
                     _id: user.user_id, 
                     email: user.email,
-                    roles: user.roles
+                    roles: user.roles,
+                    cart: user.cart_id
                 };
 
                 // Generate and send back the token
