@@ -77,7 +77,7 @@ router.post('/', cors(), async (req, res, next) => {
             /*
                 No products found
             */
-            res.status(404).json([]);
+            res.status(204).json();
         } else {
             res.status(200).json(results);
         }
