@@ -25,7 +25,7 @@ module.exports  = class userModel {
         try{
 
             // Try to get the users
-            const result = db.query("SELECT * FROM users",'',(err,res) =>{});
+            const result = db.query("SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id",'',(err,res) =>{});
         
 
             // Check we have some records
@@ -44,7 +44,7 @@ module.exports  = class userModel {
         try{
             
             // Create the query
-            const query = "SELECT * FROM users WHERE email = $1;";
+            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE email = $1;";
             const values = [this.email];
 
             // Run the query
@@ -72,7 +72,7 @@ module.exports  = class userModel {
         try{
 
             // Create the query
-            const query = "SELECT * FROM users WHERE user_id = $1;";
+            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE user_id = $1;";
             const values = [id];
 
             // Run the query
