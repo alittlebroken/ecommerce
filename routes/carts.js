@@ -303,7 +303,7 @@ router.get(
     
 
         if(!result){
-            res.status(404).json({ status: 404, message: "The cart specified contains no items"});
+            res.status(204).json({ status: 204, message: "The cart specified contains no items"});
         } else {
             res.status(200).json(result);
         }
