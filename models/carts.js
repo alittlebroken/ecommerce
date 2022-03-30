@@ -8,7 +8,7 @@ module.exports = class cartModel {
         this.cartId = parseInt(data.cartId) || null;
         this.userId = parseInt(data.userId) || null;
         this.productId = parseInt(data.productId) || null;
-        this.quantity = parseInt(data.quantity) || 0;
+        this.quantity = parseInt(data.quantity) || 1;
 
     }
 
