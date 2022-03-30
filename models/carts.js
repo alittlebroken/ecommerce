@@ -99,8 +99,22 @@ module.exports = class cartModel {
 
         try{
 
-            const stmt = "INSERT INTO carts_products(cart_id, product_id, quantity) VALUES($1, $2, $3) RETURNING *;";
-            const values = [this.cartId, this.productId, this.quantity];
+            // Check to see if the product is already in the cart
+            const query = "SELECT * FROM carts_products WHERE cart_id = $1 AND product_id = $2";
+            const queryValues = [this.cartId, this.productId];
+
+            let stmt, values;
+
+            const queryResult = await db.query(query, queryValues);
+
+            if(queryResult?.rows?.length){
+                const newQuantity = queryResult.rows[0].quantity + 1;
+                stmt = "UPDATE carts_products SET quantity = $3 WHERE cart_id = $1 and product_id = $2";
+                values = [this.cartId, this.productId, newQuantity]
+            } else {
+                stmt = "INSERT INTO carts_products(cart_id, product_id, quantity) VALUES($1, $2, $3)";
+                values = [this.cartId, this.productId, this.quantity];
+            }
 
             // Run the statement
             const result = await db.query(stmt, values);
