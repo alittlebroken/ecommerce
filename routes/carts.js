@@ -206,7 +206,7 @@ router.post(
     async (req, res, next) => {
 
     // assign data from the req body and params
-    let cartID, productId;
+    let cartId, productId;
     if(!req.body.items || req.body.items == undefined || req.body.items == null) {
         res.status(404).send(
             {
