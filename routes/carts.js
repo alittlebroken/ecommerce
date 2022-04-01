@@ -206,7 +206,7 @@ router.post(
     async (req, res, next) => {
 
     // assign data from the req body and params
-    let cartId, productId;
+    let cartId, productId, quantity;
     if(!req.body.items || req.body.items == undefined || req.body.items == null) {
         res.status(404).send(
             {
@@ -217,12 +217,14 @@ router.post(
     } else {
         cartId = req.body.cartId;
         productId = req.body.items[0].productId;
+        quantity = req.body.items[0].quantity;
     }
 
     try{
         const cart = new cartModel({
             cartId,
-            productId
+            productId,
+            quantity
         });
         const result = await cart.addToCart();
         res.status(201).json(result);
