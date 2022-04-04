@@ -107,8 +107,6 @@ router.post(
             }
         });
 
-    console.log(stripeItemData)
-
     // Create the session and send back the url for the checkout
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
