@@ -94,17 +94,20 @@ router.post(
     // Create the items to send with stripe
     const stripeItemData =
         cart.map(cartItem => {
+            const itemPrice = (parseFloat(cartItem.price).toFixed(2) * 100).toFixed(0);
             return {
                 price_data: {
                     currency: process.env.STRIPE_CURRENCY,
                     product_data: {
                         name: cartItem.name
                     },
-                    unit_amount: cartItem.price * 100
+                    unit_amount: itemPrice
                 },
                 quantity: cartItem.quantity
             }
         });
+
+    console.log(stripeItemData)
 
     // Create the session and send back the url for the checkout
     const session = await stripe.checkout.sessions.create({
