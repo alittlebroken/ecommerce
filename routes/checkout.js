@@ -113,7 +113,7 @@ router.post(
         line_items: stripeItemData,
         mode: 'payment',
         client_reference_id: cart_id,
-        success_url: `${process.env.CLIENT_URL}/sucess`,
+        success_url: `${process.env.CLIENT_URL}/success`,
         cancel_url: `${process.env.CLIENT_URL}/cancel`,
     });
 
