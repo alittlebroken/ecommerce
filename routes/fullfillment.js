@@ -86,9 +86,8 @@ router.post(
                 endpointSecret
             );
 
-            //console.log(event)
-
         } catch(err) {
+            console.log(`Stripe webhook error: ${err.message}`)
             return res.status(400).send(`Webhook Error: ${err.message}`);
         }
 
