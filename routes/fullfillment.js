@@ -19,7 +19,7 @@ const orderModel = require('../models/order');
 const ROLES = require('../utils/roles');
 const UTILS = require('../utils/auth');
 
-const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET_ORDER
 
 /**
  * @swagger
@@ -70,7 +70,6 @@ router.post(
         // Get the Stripe Payload
         const stripePayload = req.body;
         
-
         // Get the signature to ensure that only stripe can access the route
         const stripeSignature = req.headers['stripe-signature'];
 
