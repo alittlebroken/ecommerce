@@ -61,7 +61,6 @@ passport.use(
 
                 return done(null, user, { message: 'Logged in successfully'});
             } catch(error) {
-                
                 return done(error);
             }
         }
