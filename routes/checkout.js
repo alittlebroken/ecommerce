@@ -107,6 +107,9 @@ router.post(
             }
         });
 
+    console.log(process.env.CLIENT_URL)
+    console.log(process.env.CLIENT_URL)
+
     // Create the session and send back the url for the checkout
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -116,6 +119,8 @@ router.post(
         success_url: `${process.env.CLIENT_URL}/success`,
         cancel_url: `${process.env.CLIENT_URL}/cancel`,
     });
+
+    console.log(session.url)
 
     return res.json({ url: session.url});
 });
