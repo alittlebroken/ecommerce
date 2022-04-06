@@ -55,7 +55,7 @@ const swaggerOptions = {
 const swaggerSpec = swaggerJSDoc(swaggerOptions)
 
 // JSON config
-app.use('/fulfill/order', bodyParser.raw({ type: 'application/json'} ))
+app.use('/fulfill/order', bodyParser.raw({ type: '*/*'} ))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json({ type: 'application/json'}))
