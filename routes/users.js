@@ -159,7 +159,7 @@ router.get(
  *   get:
  *     tags:
  *       - Users
- *     description: returns a list of users
+ *     description: returns a user
  *     produces:
  *       - application/json
  *     parameters:
@@ -179,7 +179,7 @@ router.get(
 router.get(
     '/:userid',
     passport.authenticate('jwt', { session: false }), 
-    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer), 
+    UTILS.checkUserRoles(ROLES.Customer), 
     async (req, res, next) => {
 
     try{
