@@ -179,9 +179,9 @@ router.get(
 router.get(
     '/:userid',
     passport.authenticate('jwt', { session: false }), 
-    UTILS.checkUserRoles(ROLES.Customer), 
+    UTILS.checkUserRoles(ROLES.Admin, ROLES.Customer), 
     async (req, res, next) => {
-
+    
     try{
         const response = await db.query('SELECT * FROM users WHERE user_id = $1',[req.body.userid]);
         if(response.rowCount === 0){
@@ -388,7 +388,7 @@ router.put(
  *     tags:
  *       - Users
  *       - Orders
- *     description: Gett all orders associated with a user
+ *     description: Get all orders associated with a user
  *     produces:
  *       - application/json
  *     parameters:
