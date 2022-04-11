@@ -96,7 +96,7 @@ router.post(
             fulfillment.fulfillOrder(session);
         }
 
-        res.status(200);
+        res.status(200).send('');
     }
 );
 
