@@ -1,5 +1,16 @@
 name: Test Runner
 on: [push]
+env:
+ CLIENT_URL: http://localhost:3000
+ SERVER_URL: http://localhost:5000
+ DATABASE_URL: postgres://testdbusr:testpassword@localhost:5432/test
+ SALT_ROUNDS: 10
+ TOKEN_SECRET: testrunner
+ TOKEN_EXPIRATION: 1d
+ STRIPE_API_KEY: sktest_573457348
+ STRIPE_ENDPOINT_SECRET: sktest_2839710234723
+ STRIPE_CURRENCY: GBP
+ STRIPE_WEBHOOK_SECRET_ORDER: sktest_239048230984
 jobs:
   perform-test-run:
     runs-on: ubuntu-latest
