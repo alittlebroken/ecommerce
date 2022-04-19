@@ -86,12 +86,12 @@ module.exports = class orderModel {
 
     }
 
-    // Find itesm associated with this order
+    // Find items associated with this order
     async findItems() {
         try{
 
             // Create the statement
-            const stmt = `SELECT p.* FROM products p INNER JOIN \
+            const stmt = `SELECT p.*, op.quantity, op.total FROM products p INNER JOIN \
                           orders_products op ON p.product_id = op.product_id \
                           WHERE op.order_id = $1;`;
 
@@ -144,9 +144,40 @@ module.exports = class orderModel {
             const values = [this.order_id];
 
             const result = await db.query(stmt, values);
-            
+    
             if(result.rows?.length){
-                return result.rows;
+                /**
+                 * Assign the data to the class vars
+                 */
+                 this.order_id = result.rows[0].order_id;
+                 this.user_id = result.rows[0].user_id;
+                 this.items = this.findItems;
+                 this.order_date = result.rows[0].order_date;
+                 this.order_paid_for = result.rows[0].paid_for;
+                 this.order_notes = result.rows[0].order_notes;
+                 this.order_shipped = result.rows[0].order_shipped;
+                 this.order_arrived = result.rows[0].order_arrived;
+                 this.order_total_cost = result.rows[0].order_total_cost;
+
+                /**
+                 * Build the return object
+                 */
+                const returnData = [];
+                const returnObject = {
+                    order_id: this.order_id,
+                    user_id: this.user_id,
+                    items: this.items,
+                    order_date: this.order_date,
+                    order_paid_for: this.order_paid_for,
+                    order_notes: this.order_notes,
+                    order_shipped: this.order_shipped,
+                    order_arrived: this.order_arrived,
+                    order_total_cost: this.order_total_cost
+                };
+                returnData.append(returnObject);
+
+                return returnData;
+                //return result.rows;
             }
 
             return null;
