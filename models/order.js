@@ -16,7 +16,8 @@ module.exports = class orderModel {
         this.order_notes = data.notes || null,
         this.order_shipped = data.shipped || null,
         this.order_arrived = data.arrived || null,
-        this.order_total_cost = data.total_cost  || 0
+        this.order_total_cost = data.total_cost  || 0,
+        this.line_total = data.line_total || 0
 
     }
 
@@ -100,8 +101,6 @@ module.exports = class orderModel {
             const result = await db.query(stmt, values);
 
             if(result?.rows?.length){
-                console.log(result.rows)
-                conseol.log(`fidnItems method has found some items for order # ${this.order_id}`)
                 return result.rows;
             }
 
@@ -138,8 +137,8 @@ module.exports = class orderModel {
         try{
 
             // Create the statement and execute it against the database
-            const stmt = `SELECT o.order_id, op.quantity, (op.quantity * p.price) \ 
-                          as line_total,p.* FROM orders o INNER JOIN orders_products op \
+            const stmt = `SELECT o.*, op.quantity, (op.quantity * p.price) \ 
+                          as line_total, p.* FROM orders o INNER JOIN orders_products op \
                           ON o.order_id = op.order_id INNER JOIN products p ON \
                           p.product_id = op.product_id WHERE o.order_id = $1`;
             
@@ -153,9 +152,9 @@ module.exports = class orderModel {
                  */
                  this.order_id = result.rows[0].order_id;
                  this.user_id = result.rows[0].user_id;
-                 this.items = this.findItems;
+                 this.items = await this.findItems();
                  this.order_date = result.rows[0].order_date;
-                 this.order_paid_for = result.rows[0].paid_for;
+                 this.order_paid_for = result.rows[0].order_paid_for;
                  this.order_notes = result.rows[0].order_notes;
                  this.order_shipped = result.rows[0].order_shipped;
                  this.order_arrived = result.rows[0].order_arrived;
@@ -174,10 +173,9 @@ module.exports = class orderModel {
                     order_notes: this.order_notes,
                     order_shipped: this.order_shipped,
                     order_arrived: this.order_arrived,
-                    order_total_cost: this.order_total_cost
+                    order_total_cost: parseFloat(this.order_total_cost).toFixed(2),
                 };
                 returnData.push(returnObject);
-
                 return returnData;
                 //return result.rows;
             }

@@ -59,8 +59,6 @@ router.post('/', cors(), async (req, res, next) => {
     const terms = req.body.searchTerms;
     const category = req.query.category;
 
-    console.log(`/search`)
-
     try{
 
         // Create an instance of the productModel

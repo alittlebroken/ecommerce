@@ -10,8 +10,6 @@ module.exports = class cartModel {
         this.productId = parseInt(data.productId) || null;
         this.quantity = data.quantity;
 
-        console.log(`Item Quantity #2: ${this.quantity}`)
-
     }
 
     // Find the cart by user

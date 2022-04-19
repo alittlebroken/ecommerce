@@ -473,25 +473,17 @@ router.get(
     const userId = req.body.userid;
     const orderId = req.body.orderid;
 
-    const order = new orderModel({order_id: orderId, user_id: userId});
-    order.findOrder();
-    console.log(order)
-    console.log(order?.items)
-
-    // generate the query
-    let query = "SELECT * FROM orders WHERE order_id = $1 and user_id = $2;";
-
     // Perform the query
     try{
-        const response = await db.query(query, [orderId, userId]);
-        
-        if(response.rowCount === 0){
+
+        const order = new orderModel({order_id: orderId, user_id: userId});
+        const returnData = await order.findOrder()
+        if(!returnData){
             const error = new createHttpError(404, "No records were found with the specified parameters");
             return next(error);
         }
-
-        console.log(response.rows)
-        res.status(200).json(response.rows);
+        
+        res.status(200).json(returnData);
     } catch(err) {
         return next(err);
     }
