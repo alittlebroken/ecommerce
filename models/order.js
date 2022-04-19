@@ -174,7 +174,7 @@ module.exports = class orderModel {
                     order_arrived: this.order_arrived,
                     order_total_cost: this.order_total_cost
                 };
-                returnData.append(returnObject);
+                returnData.push(returnObject);
 
                 return returnData;
                 //return result.rows;
