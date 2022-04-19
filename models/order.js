@@ -101,6 +101,7 @@ module.exports = class orderModel {
 
             if(result?.rows?.length){
                 console.log(result.rows)
+                conseol.log(`fidnItems method has found some items for order # ${this.order_id}`)
                 return result.rows;
             }
 
