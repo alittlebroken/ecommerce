@@ -4,6 +4,11 @@ const router = express.Router()
 const db = require('../db/db')
 const passport = require('passport')
 
+/**
+ * Database Models
+ */
+const orderModel = require('../models/order');
+
 // Load any utils
 const ROLES = require('../utils/roles');
 const UTILS = require('../utils/auth');
@@ -468,18 +473,23 @@ router.get(
     const userId = req.body.userid;
     const orderId = req.body.orderid;
 
-    // generate the query
+    const order = new orderModel({order_id: orderId, user_id: userId});
+    order.findOrder();
+    console.log(order)
 
+    // generate the query
     let query = "SELECT * FROM orders WHERE order_id = $1 and user_id = $2;";
 
     // Perform the query
     try{
-        const response  = await db.query(query, [orderId, userId]);
+        const response = await db.query(query, [orderId, userId]);
         
         if(response.rowCount === 0){
             const error = new createHttpError(404, "No records were found with the specified parameters");
             return next(error);
         }
+
+        console.log(response.rows)
         res.status(200).json(response.rows);
     } catch(err) {
         return next(err);
