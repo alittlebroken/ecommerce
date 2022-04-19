@@ -99,7 +99,8 @@ module.exports = class orderModel {
 
             const result = await db.query(stmt, values);
 
-            if(result.rows.length){
+            if(result?.rows?.length){
+                console.log(result.rows)
                 return result.rows;
             }
 

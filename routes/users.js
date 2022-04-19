@@ -476,6 +476,7 @@ router.get(
     const order = new orderModel({order_id: orderId, user_id: userId});
     order.findOrder();
     console.log(order)
+    console.log(order?.items)
 
     // generate the query
     let query = "SELECT * FROM orders WHERE order_id = $1 and user_id = $2;";
