@@ -73,7 +73,7 @@ module.exports  = class userModel {
              * Create the vars for the DB statement
              */
             const stmt = `SELECT * FROM users WHERE google = $1`;
-            const values = google_id;
+            const values = [google_id];
 
             /**
              * Run the DB statement
