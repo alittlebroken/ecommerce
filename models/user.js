@@ -20,6 +20,83 @@ module.exports  = class userModel {
         this.cartId = data.cartId || null
     }
 
+    /**
+     * Creates a new entry in the users table for a google ID
+     * @param {object} profile  The returned profile information from google
+     * @returns { object } user The created user
+     */
+    async createGoogleUser(profile){
+
+        /** 
+         * destruct the passed in object for the relevant properties
+         */
+        const {
+            id, name, displayName, emails
+        } = profile;
+
+        console.log(profile)
+
+        /**
+         * DEBUG
+         */
+        console.log(`== DEBUG START ==`)
+        console.log(`DEBUG => Google ID = ${id}`);
+        console.log(`DEBUG => Google name = ${name}`);
+        console.log(`DEBUG => Google displayName = ${displayName}`);
+        console.log(`DEBUG => Google emails = ${emails}`);
+        console.log(`== DEBUG END ==`)
+
+        try{
+
+            /** 
+             * Create the vars used for inserting into the DB
+             */
+            const stmt = `INSERT INTO users () VALUES () RETURNING *;`;
+
+        } catch(error) {
+            throw new Error(error);
+        }
+
+    }
+
+    /**
+     * Find a login via google ID
+     * @param {integer} google_id  The users google ID returned from a google login
+     * @returns {object} user || false  Either the found user data in the DB or false
+     */
+     async findByGoogleId(google_id) {
+
+        try{
+
+            /**
+             * Create the vars for the DB statement
+             */
+            const stmt = `SELECT * FROM users WHERE google = $1`;
+            const values = google_id;
+
+            /**
+             * Run the DB statement
+             */
+            const result = await db.query(stmt, values);
+
+            /**
+             * Check we have a record and if so then return it
+             */
+            if(result?.rows?.length){
+                return result.rows[0];
+            }
+
+            /** 
+             * By default return false
+             */
+            return false
+
+        } catch (error) {
+            throw new Error(error);
+        }
+
+    }
+
     // find all users
     async find () {
         try{

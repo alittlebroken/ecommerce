@@ -71,6 +71,92 @@ router.post('/register', passport.authenticate('register', { session: false }), 
 
 /**
  * @swagger
+ * /auth/google
+ *  get:
+ *   tags:
+ *     - Authentication
+ *     - User
+ *     - Google
+ *   description: Allows a user to log in with thier google account
+ *   produces:
+ *    - application/json
+ *   parameters:
+ *    none
+ *   responses: 
+ *    none - handled by passport.js
+ */
+router.get(
+    '/google', 
+    passport.authenticate('google', { scope: ['email', 'profile']}));
+
+
+/**
+ * @swagger
+ * /auth/google/callback
+ *  get:
+ *   tags:
+ *    - Authentication
+ *    - User
+ *    - Google
+ *   description: The web hook google uses once we have authenticated remotly.
+ *   produces:
+ *    - application/json
+ *   parameters:
+ *    none
+ *   responses:
+ *    none - handled by passport.js
+ */
+router.get(
+    '/google/callback', async (req, res, next) => {
+    passport.authenticate(
+        'googleLogin', 
+        async (err, user, info) => {
+
+            try{
+
+                /** 
+                 * Check if there are any errors or no user was found
+                 */
+                if(err || !user){
+
+                    if(info.message == 'Unable to use google auth to login'){
+                        error = new Error('There was an issue using google auth');
+                        error.status = 404;
+                    }
+
+                    return next(error);
+                }
+
+                /**
+                 * Generate the access token and send it back to whoever called the API
+                 */
+                 req.login(user, {session: false}, async(error) => {
+                    if(error) return next(error);
+                    
+                    // Lets build up the body of the token
+                    const body = { 
+                        _id: user.user_id, 
+                        email: user.email,
+                        roles: user.roles,
+                        cart: user.cart_id
+                    };
+    
+                    // Generate and send back the token
+                    const userObj = new userModel({});
+                    const token = await userObj.generateAccessToken({ user: body });
+                    return res.json({ token });
+                });
+
+            } catch(err) {
+                return next(error);
+            }
+
+        }
+    )(req, res, next);
+});
+
+/**
+ * @swagger
  * /auth/login:
  *   post:
  *     tags:
