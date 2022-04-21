@@ -69,43 +69,11 @@ router.post('/register', passport.authenticate('register', { session: false }), 
     
 });
 
-/**
- * @swagger
- * /auth/google
- *  get:
- *   tags:
- *     - Authentication
- *     - User
- *     - Google
- *   description: Allows a user to log in with thier google account
- *   produces:
- *    - application/json
- *   parameters:
- *    none
- *   responses: 
- *    none - handled by passport.js
- */
 router.get(
     '/google', 
-    passport.authenticate('google', { scope: ['email', 'profile']}));
+    passport.authenticate('googleLogin', { scope: ['email', 'profile']}));
 
 
-/**
- * @swagger
- * /auth/google/callback
- *  get:
- *   tags:
- *    - Authentication
- *    - User
- *    - Google
- *   description: The web hook google uses once we have authenticated remotly.
- *   produces:
- *    - application/json
- *   parameters:
- *    none
- *   responses:
- *    none - handled by passport.js
- */
 router.get(
     '/google/callback', async (req, res, next) => {
     passport.authenticate(
