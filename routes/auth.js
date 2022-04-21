@@ -88,7 +88,7 @@ router.get(
                 if(err || !user){
 
                     if(info?.message == 'Unable to use google auth to login'){
-                        error = new Error('There was an issue using google auth');
+                        const error = new Error('There was an issue using google auth');
                         error.status = 404;
                     }
 
