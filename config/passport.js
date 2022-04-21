@@ -82,8 +82,8 @@ passport.use(
         },
         async(request, accessToken, refreshToken, email, profile, done) => {
 
-            //console.log(profile)
-            //console.log(email)
+            console.log(`== Passport GoogleStrategy ==`)
+            console.log(profile)
 
             /**
              * Do we already have this google ID stored in the DB
