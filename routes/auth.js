@@ -87,8 +87,15 @@ router.get(
                  */
                 if(err || !user){
 
+                    console.log()
+                    console.log(`error: ${err}`)
+                    console.log(`user: ${user}`)
+                    console.log()
+                    
+                    let error;
+
                     if(info?.message == 'Unable to use google auth to login'){
-                        const error = new Error('There was an issue using google auth');
+                        error = new Error('There was an issue using google auth');
                         error.status = 404;
                     }
 
