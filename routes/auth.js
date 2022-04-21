@@ -116,7 +116,7 @@ router.get(
                 });
 
             } catch(err) {
-                return next(error);
+                return next(err);
             }
 
         }
