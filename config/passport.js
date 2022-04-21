@@ -97,7 +97,7 @@ passport.use(
                     /**
                      * Return the details found for the user
                      */
-                    return done(null, user);
+                    return done(null, user, { message: 'Google account found, logging in' });
                 } else {
                     /**
                      * No user found create the account
@@ -107,7 +107,7 @@ passport.use(
                         /**
                          * return the new user
                          */
-                        return done(null, newUser);
+                        return done(null, newUser,{ message: 'Adding google auth to internal systems for future use' });
                     } else {
                         return done(null, false, { message: 'Unable to use google auth to login' });
                     }
