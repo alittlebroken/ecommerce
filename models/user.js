@@ -34,6 +34,7 @@ module.exports  = class userModel {
             id, name, displayName, emails
         } = profile;
 
+        console.log(`PROFILE INFORMATION`)
         console.log(profile)
 
         /**
