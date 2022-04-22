@@ -34,30 +34,22 @@ module.exports  = class userModel {
             id, email, picture, given_name, family_name
         } = profile;
 
-        /**
-         * DEBUG
-         */
-        console.log(`\n`)
-        console.log(`== DEBUG createGoogleUser START ==`)
-        console.log(`\n`)
-        console.log(`== DEBUG createGoogleUser END ==`)
-        console.log(`\n`)
-
         try{
 
             /** 
              * Create the vars used for inserting into the DB
              */
             const stmt = `INSERT INTO users 
-            (email, password, forename, surname, join_date, roles, google) 
-            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5, $6) RETURNING *;`;
+            (email, password, forename, surname, join_date, roles, google, enabled) 
+            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5, $6, $7) RETURNING *;`;
             const values = [
                 email,
                 this.hashPassword(id),
                 given_name,
                 family_name,
                 'Customer',
-                id
+                id,
+                true
             ];
 
             /**

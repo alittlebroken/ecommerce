@@ -102,9 +102,6 @@ passport.use(
                     /**
                      * No user found create the account
                      */
-                    console.log()
-                    console.log(`No user found having to create locally`)
-                    console.log()
                     const newUser = await userObj.createGoogleUser(profile);
                     if(newUser){
                         /**
