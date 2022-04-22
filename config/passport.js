@@ -49,8 +49,6 @@ passport.use(
                 
                 const userObj = new userModel({ email: email });
                 const user = await userObj.findByEmail();
-                
-                console.log(user)
 
                 if(!user){
                     return done(null, false, { message: 'user not found'});
@@ -62,7 +60,7 @@ passport.use(
                 }
 
                 // Update the last login time
-                await userObj.update({ column: 'last_logon', value: 'CURRENT_TIMESTAMP', id: user.id });
+                await userObj.update({ column: 'last_logon', value: 'CURRENT_TIMESTAMP', id: user.user_id });
 
                 return done(null, user, { message: 'Logged in successfully'});
             } catch(error) {
