@@ -258,6 +258,9 @@ module.exports  = class userModel {
             const { column, value, id } = data;
             
             console.log(stmt)
+            console.log(column)
+            console.log(value)
+            console.log(id)
 
             // Run the query
             const result = await db.query(stmt,[column, value, id]);
