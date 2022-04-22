@@ -171,13 +171,13 @@ router.post('/login', async( req, res, next) => {
                 // Check the info sent back from the passport login script
                 let error;
 
-                if(info.message == 'user not found'){
+                if(info?.message == 'user not found'){
                     error = new Error('Specified user was not found');
                     error.status = 404;
-                } else if (info.message == 'Wrong password'){
+                } else if (info?.message == 'Wrong password'){
                     error = new Error('The specified password was incorrect');
                     error.status = 409;
-                } else if (info.message == "Missing credentials") {
+                } else if (info?.message == "Missing credentials") {
                     error = new Error('Missing username or password');
                     error.status = 404;
                 } else {
