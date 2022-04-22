@@ -257,7 +257,7 @@ module.exports  = class userModel {
             // Get the required values
             const { column, value, id } = data;
             
-            console.log(query)
+            console.log(stmt)
 
             // Run the query
             const result = await db.query(stmt,[column, value, id]);
