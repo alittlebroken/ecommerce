@@ -31,28 +31,51 @@ module.exports  = class userModel {
          * destruct the passed in object for the relevant properties
          */
         const {
-            id, name, displayName, emails
+            id, email, picture, given_name, family_name
         } = profile;
-
-        console.log(`PROFILE INFORMATION`)
-        console.log(profile)
 
         /**
          * DEBUG
          */
-        console.log(`== DEBUG START ==`)
-        console.log(`DEBUG => Google ID = ${id}`);
-        console.log(`DEBUG => Google name = ${name}`);
-        console.log(`DEBUG => Google displayName = ${displayName}`);
-        console.log(`DEBUG => Google emails = ${emails}`);
-        console.log(`== DEBUG END ==`)
+        console.log(`\n`)
+        console.log(`== DEBUG createGoogleUser START ==`)
+        console.log(`\n`)
+        console.log(`== DEBUG createGoogleUser END ==`)
+        console.log(`\n`)
 
         try{
 
             /** 
              * Create the vars used for inserting into the DB
              */
-            const stmt = `INSERT INTO users () VALUES () RETURNING *;`;
+            const stmt = `INSERT INTO users 
+            (email, password, forename, surname, join_date, roles, google) 
+            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5, $6) RETURNING *;`;
+            const values = [
+                email,
+                this.hashPassword(id),
+                given_name,
+                family_name,
+                'Customer',
+                id
+            ];
+
+            /**
+             * Execute the DB statement
+             */
+            const result = await db.query(stmt, values);
+
+            /**
+             * Check we have some records to return
+             */
+            if(result?.rows?.length){
+                return result.rows[0];
+            }
+
+            /** 
+             * By default return false
+             */
+            return false
 
         } catch(error) {
             throw new Error(error);
