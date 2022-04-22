@@ -60,7 +60,7 @@ passport.use(
                 }
 
                 // Update the last login time
-                await user.update({ column: 'last_logon', value: 'CURRENT_TIMESTAMP', id: user.id });
+                await userObj.update({ column: 'last_logon', value: 'CURRENT_TIMESTAMP', id: user.id });
 
                 return done(null, user, { message: 'Logged in successfully'});
             } catch(error) {
