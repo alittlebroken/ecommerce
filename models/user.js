@@ -263,7 +263,11 @@ module.exports  = class userModel {
             console.log(id)
 
             // Run the query
-            const result = await db.query(stmt,[column, value, id]);
+            const result = await db.query(stmt,[column, value, id], (err, res) => {
+                if(err){
+                    console.log(err.stack)
+                }
+            });
 
             console.log(result)
 

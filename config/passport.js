@@ -61,7 +61,7 @@ passport.use(
 
                 // Update the last login time
                 const loginDate = new Date();
-                await userObj.update({ column: 'last_logon', value: loginDate.toISOString(), id: user.user_id });
+                await userObj.setLastLogin({ user_id: user.user_id, last_logon: loginDate.toISOString() });
 
                 return done(null, user, { message: 'Logged in successfully'});
             } catch(error) {
