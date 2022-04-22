@@ -137,7 +137,7 @@ module.exports  = class userModel {
         try{
             
             // Create the query
-            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE email = $1;";
+            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE email = $1 AND u.google = null;";
             const values = [this.email];
 
             // Run the query
@@ -165,7 +165,7 @@ module.exports  = class userModel {
         try{
 
             // Create the query
-            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE user_id = $1;";
+            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE user_id = $1 AND u.google = null;";
             const values = [id];
 
             // Run the query

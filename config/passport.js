@@ -58,7 +58,9 @@ passport.use(
                 if(!validate){
                     return done(null, false, { message: 'Wrong password'});
                 }
+
                 // Update the last login time
+                await user.update({ column: 'last_logon', value: 'CURRENT_TIMESTAMP', id: user.id });
 
                 return done(null, user, { message: 'Logged in successfully'});
             } catch(error) {
@@ -81,9 +83,6 @@ passport.use(
             passReqToCallback: true,
         },
         async(request, accessToken, refreshToken, email, profile, done) => {
-
-            console.log(`== Passport GoogleStrategy ==`)
-            console.log(profile)
 
             /**
              * Do we already have this google ID stored in the DB
