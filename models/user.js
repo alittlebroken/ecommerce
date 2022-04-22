@@ -248,7 +248,7 @@ module.exports  = class userModel {
         }
     }
 
-    async update (data){
+    async update(data){
         try{
 
             // Create the query
