@@ -248,6 +248,48 @@ module.exports  = class userModel {
         }
     }
 
+    /**
+     * 
+     * Set the last login time for a user
+     */
+    async setLastLogin(payload){
+
+        try{
+
+            /**
+             * Extract the required data from the payload
+             */
+            const { user_id, last_logon } = payload;
+
+            /**
+             * Create the query and set the values
+             */
+            const stmt = `UPDATE users set last_logon = $1 WHERE user_id = $2 RETURNING *;`;
+            const values = [last_logon, user_id];
+
+            /**
+             * Run the statement
+             */
+            const result = await db.query(stmt, values);
+
+            /**
+             * Check the result of the update
+             */
+            if(result?.rows?.lenght){
+                return result.rows[0];
+            }
+
+            /** 
+             * By default return null
+             */
+            return null;
+
+        } catch(error) {
+            throw new Error(error);
+        }
+
+    }
+
     async update(data){
         try{
 
@@ -256,20 +298,9 @@ module.exports  = class userModel {
             
             // Get the required values
             const { column, value, id } = data;
-
-            console.log(stmt)
-            console.log(column)
-            console.log(value)
-            console.log(id)
-
+           
             // Run the query
-            const result = await db.query(stmt,[column, value, id], (err, res) => {
-                if(err){
-                    console.log(err.stack)
-                }
-            });
-
-            console.log(result)
+            const result = await db.query(stmt,[column, value, id]);
 
             // Check we have a record or more
             if(result?.rows?.length){
