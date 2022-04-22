@@ -252,16 +252,20 @@ module.exports  = class userModel {
         try{
 
             // Create the query
-            const query = "UPDATE users SET $1 = $2 WHERE user_id = $3 RETURNING *;";
+            const stmt = `UPDATE users SET $1 = $2 WHERE user_id = $3 RETURNING *;`;
             
             // Get the required values
             const { column, value, id } = data;
-                
+            
+            console.log(query)
+
             // Run the query
-            const result = await db.query(query,[column, value, id],(err, res) => {});
+            const result = await db.query(stmt,[column, value, id]);
+
+            console.log(result)
 
             // Check we have a record or more
-            if(result.rows.length){
+            if(result?.rows?.length){
                 return result.rows[0];
             }
 
