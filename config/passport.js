@@ -50,6 +50,8 @@ passport.use(
                 const userObj = new userModel({ email: email });
                 const user = await userObj.findByEmail();
                 
+                console.log(user)
+
                 if(!user){
                     return done(null, false, { message: 'user not found'});
                 }
