@@ -157,6 +157,9 @@ router.post('/login/google', async (req, res, next) => {
             const userObj = new userModel();
             const user = await userObj.findByGoogleId(sub); 
 
+            // Update the last login time
+            const loginDate = new Date();
+
             if(user){
                 // We have found an existing user
 
@@ -170,6 +173,7 @@ router.post('/login/google', async (req, res, next) => {
 
                 // Generate and send back the token
                 const token = await userObj.generateAccessToken({ user: body });
+                await userObj.setLastLogin({ user_id: user.user_id, last_logon: loginDate.toISOString() });
                 return res.json({ token });
 
             } else {
@@ -195,6 +199,7 @@ router.post('/login/google', async (req, res, next) => {
 
                     // Generate and send back the token
                     const token = await userObj.generateAccessToken({ user: body });
+                    await userObj.setLastLogin({ user_id: newUser.user_id, last_logon: loginDate.toISOString() });
                     return res.json({ token });
 
                 }

@@ -40,8 +40,8 @@ module.exports  = class userModel {
              * Create the vars used for inserting into the DB
              */
             const stmt = `INSERT INTO users 
-            (email, password, forename, surname, join_date, roles, google, enabled) 
-            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5, $6, $7) RETURNING *;`;
+            (email, password, forename, surname, join_date, roles, google, enabled, avatar_url) 
+            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5, $6, $7, $8) RETURNING *;`;
             const values = [
                 email,
                 this.hashPassword(id),
@@ -49,7 +49,8 @@ module.exports  = class userModel {
                 family_name,
                 'Customer',
                 id,
-                true
+                true,
+                picture
             ];
 
             /**
