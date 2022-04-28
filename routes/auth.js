@@ -5,6 +5,7 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const {OAuth2Client} = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const userModel = require('../models/user');
 
 // Get any needed environment variables
 require('dotenv').config();
@@ -13,9 +14,6 @@ require('dotenv').config();
  * verify method for google account
  */
 const verifyGoogleToken = async (token) => {
-
-    console.log(`\nTOKEN`)
-    console.log(token)
 
     /**
      * Create a ticket
@@ -29,12 +27,11 @@ const verifyGoogleToken = async (token) => {
      * isolate the payload for the ticket
      */
      const payload = ticket.getPayload();
-     console.log(`\nPAYLOAD:`)
-     console.log(payload)
 
-     console.log(`\n`)
-
-
+     /** 
+      * return the payload
+      */
+     return payload;
 
 }
 
@@ -130,12 +127,94 @@ router.post('/register', passport.authenticate('register', { session: false }), 
  */
 router.post('/login/google', async (req, res, next) => {
 
-    /**
-     * Extract the google auth token from the body
-     */
-    console.log(req.body[0])
-    console.log(req.body)
-    verifyGoogleToken(req.body.token).catch(console.error);
+    try{
+        /**
+         * Extract the google auth token from the body
+         */
+        const token = req.body.token;
+
+        /**
+        * Verify the token and extract the payload
+        */
+
+        const payload = await verifyGoogleToken(token).catch(console.error);
+
+        /**
+         * extract the relevant information from the payload
+         */
+        const {
+            sub,
+            email,
+            picture,
+            given_name,
+            family_name
+        } = payload;
+
+        /**
+         * Check if we already have the ID in the DB
+         */
+        try{
+
+            const userObj = new userModel();
+            const user = await userObj.findByGoogleId(sub); 
+
+            if(user){
+                // We have found an existing user
+
+                // Lets build up the body of the token
+                const body = { 
+                    _id: user.user_id, 
+                    email: user.email,
+                    roles: user.roles,
+                    cart: user.cart_id
+                };
+
+                // Generate and send back the token
+                const token = await userObj.generateAccessToken({ user: body });
+                return res.json({ token });
+
+            } else {
+                // Now user was found so we can create one
+                const newUser = await userObj.createGoogleUser({
+                    id: sub,
+                    email,
+                    picture,
+                    given_name,
+                    family_name
+                });
+
+                if(newUser){
+                    // User created we can generate the token and return it
+
+                    // Lets build up the body of the token
+                    const body = { 
+                        _id: newUser.user_id, 
+                        email: newUser.email,
+                        roles: newUser.roles,
+                        cart: newUser.cart_id
+                    };
+
+                    // Generate and send back the token
+                    const token = await userObj.generateAccessToken({ user: body });
+                    return res.json({ token });
+
+                }
+
+            }
+
+             // By default return error
+             return res.status(404).json({
+                 status: 404,
+                 message: 'Unable to find or create google ID'
+             });
+
+        } catch(err) {
+            return next(err);
+        }
+
+    } catch(error) {
+        return next(error);
+    }
 
 });
 
