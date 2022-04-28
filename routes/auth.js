@@ -130,8 +130,8 @@ router.post('/login/google', async (req, res, next) => {
     /**
      * Extract the google auth token from the body
      */
-    console.reg.body[0]
-    console.log(req.body.body)
+    console.log(req.body[0])
+    console.log(req.body)
     verifyGoogleToken(req.body.body).catch(console.error);
 
 });
