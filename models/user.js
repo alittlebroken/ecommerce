@@ -84,7 +84,7 @@ module.exports  = class userModel {
                      roles: result.rows[0].roles,
                      google: result.rows[0].google,
                      avatar_url: result.rows[0].avatar_url,
-                     cart_id: cart_id
+                     cart_id: cartResult.rows[0].cart_id
                  }
 
                  return user;
