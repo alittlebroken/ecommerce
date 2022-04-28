@@ -135,7 +135,7 @@ router.post('/login/google', async (req, res, next) => {
      */
     console.log(req.body[0])
     console.log(req.body)
-    verifyGoogleToken(req.body).catch(console.error);
+    verifyGoogleToken(req.body.token).catch(console.error);
 
 });
 
