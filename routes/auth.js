@@ -3,9 +3,26 @@ const express = require('express');
 const router = express.Router()
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
+const {OAuth2Client} = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Get any needed environment variables
 require('dotenv').config();
+
+/**
+ * verify method for google account
+ */
+const verifyGoogleToken = async (token) => {
+
+    /**
+     * Create a ticket
+     */
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+}
 
 // Import the user model
 const userModel = require('../models/user')
@@ -69,6 +86,49 @@ router.post('/register', passport.authenticate('register', { session: false }), 
     
 });
 
+/**
+ * @swagger
+ * /auth/login/google:
+ *   post:
+ *     tags:
+ *       - Authentication
+ *       - User
+ *       - Google
+ *     description: Logs in a google user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: email
+ *         description: Email address of the user being registered
+ *         type: string
+ *         in: body
+ *         required: true
+ *       - name: password
+ *         description: Password the user chose to be registered with
+ *         type: string
+ *         in: body
+ *         required: true
+ *     responses:
+ *       201:
+ *         description: Registration successful
+ *       409:
+ *         description: Email address was already registered
+ */
+router.post('/login/google', async (req, res, next) => {
+
+    /**
+     * Extract the google auth token from the body
+     */
+    console.log(req.body)
+
+    /**
+     * isolate the payload for the ticket
+     */
+    const payload = verifyGoogleToken.getPayload();
+    console.log(payload)
+
+});
+
 router.get(
     '/google', 
     passport.authenticate('googleLogin', { scope: ['email', 'profile']}));
@@ -119,7 +179,13 @@ router.get(
                     // Generate and send back the token
                     const userObj = new userModel({});
                     const token = await userObj.generateAccessToken({ user: body });
-                    return res.json({ token });
+                    //return res.json({ token });
+
+                    /**
+                     * Redirect back to the client with the token
+                     */
+                    res.redirect(`${process.env.CLIENT_URL}/webhooks/google`);
+
                 });
 
             } catch(err) {
