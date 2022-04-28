@@ -42,6 +42,7 @@ module.exports  = class userModel {
             const stmt = `INSERT INTO users 
             (email, password, forename, surname, join_date, roles, google, enabled, avatar_url) 
             VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5, $6, $7, $8) RETURNING *;`;
+
             const values = [
                 email,
                 this.hashPassword(id),
@@ -62,7 +63,32 @@ module.exports  = class userModel {
              * Check we have some records to return
              */
             if(result?.rows?.length){
-                return result.rows[0];
+
+                /**
+                 * Create a cart for the user
+                 */
+                 const cart = new cartModel({ userId: result.rows[0].user_id });
+                 const cartResult = await cart.create();
+
+                 /**
+                  * Generate a new object to send back
+                  */
+                 const user = {
+                     user_id: result.rows[0].user_id,
+                     email: result.rows[0].email,
+                     forename: result.rows[0].forename,
+                     surname: result.rows[0].surname,
+                     join_date: result.rows[0].join_date,
+                     enabled: result.rows[0].enabled,
+                     contact_number: result.rows[0].contact_number,
+                     roles: result.rows[0].roles,
+                     google: result.rows[0].google,
+                     avatar_url: result.rows[0].avatar_url,
+                     cart_id: cart_id
+                 }
+
+                 return user;
+                 //return result.rows[0];
             }
 
             /** 
