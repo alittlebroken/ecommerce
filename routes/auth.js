@@ -22,6 +22,17 @@ const verifyGoogleToken = async (token) => {
         audience: process.env.GOOGLE_CLIENT_ID,
     });
 
+    /**
+     * isolate the payload for the ticket
+     */
+     const payload = ticket.getPayload();
+     console.log(`\nPAYLOAD:`)
+     console.log(payload)
+
+     console.log(`\n`)
+
+
+
 }
 
 // Import the user model
@@ -121,11 +132,6 @@ router.post('/login/google', async (req, res, next) => {
      */
     console.log(req.body)
 
-    /**
-     * isolate the payload for the ticket
-     */
-    const payload = verifyGoogleToken.getPayload();
-    console.log(payload)
 
 });
 
