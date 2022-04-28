@@ -5,7 +5,6 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const {OAuth2Client} = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const userModel = require('../models/user');
 
 // Get any needed environment variables
 require('dotenv').config();
