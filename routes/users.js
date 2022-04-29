@@ -427,7 +427,7 @@ router.get(
     try{
         const response = await db.query(query, [id]);
         if(response.rowCount === 0){
-            const error = new createHttpError(404, "No records were found with the specified parameters");
+            const error = new createHttpError(204, "No records were found with the specified parameters");
             return next(error);
         }
         res.status(200).json(response.rows);
