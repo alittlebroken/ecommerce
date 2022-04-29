@@ -239,11 +239,6 @@ router.get(
                  * Check if there are any errors or no user was found
                  */
                 if(err || !user){
-
-                    console.log()
-                    console.log(`error: ${err}`)
-                    console.log(`user: ${user}`)
-                    console.log()
                     
                     let error;
 
@@ -329,13 +324,6 @@ router.post('/login', async( req, res, next) => {
             if(err|| !user){
                 // Check the info sent back from the passport login script
                 let error;
-
-                console.log(`\n`)
-                console.log(`== DEBUG /auth/login START ==`)
-                console.log(err)
-                console.log(user)
-                console.log(`== DEBUG /auth/login END ==`)
-                console.log(`\n`)
 
                 if(info?.message == 'user not found'){
                     error = new Error('Specified user was not found');
