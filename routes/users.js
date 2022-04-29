@@ -423,14 +423,14 @@ router.get(
 
     // Generate the query
     let query = "SELECT * FROM orders WHERE user_id = $1;";
-
+    console.log(id)
     try{
         const response = await db.query(query, [id]);
         if(response.rowCount === 0){
             
             //const error = new createHttpError(204, "No records were found with the specified parameters");
             //return next(error);
-            
+            console.log(response)
             res.status(204).json(response)
         }
         res.status(200).json(response.rows);
