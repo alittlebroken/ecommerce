@@ -114,7 +114,8 @@ module.exports  = class userModel {
             /**
              * Create the vars for the DB statement
              */
-            const stmt = `SELECT * FROM users WHERE google = $1`;
+            //const stmt = `SELECT * FROM users WHERE google = $1`;
+            const stmt = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE google = $1;";
             const values = [google_id];
 
             /**
@@ -126,7 +127,23 @@ module.exports  = class userModel {
              * Check we have a record and if so then return it
              */
             if(result?.rows?.length){
-                return result.rows[0];
+                /**
+                 * Generate a new object to send back and remove the password field
+                 */
+                 const user = {
+                    user_id: result.rows[0].user_id,
+                    email: result.rows[0].email,
+                    forename: result.rows[0].forename,
+                    surname: result.rows[0].surname,
+                    join_date: result.rows[0].join_date,
+                    enabled: result.rows[0].enabled,
+                    contact_number: result.rows[0].contact_number,
+                    roles: result.rows[0].roles,
+                    google: result.rows[0].google,
+                    avatar_url: result.rows[0].avatar_url,
+                    cart_id: result.rows[0].cart_id
+                }
+                return user;
             }
 
             /** 
@@ -145,9 +162,10 @@ module.exports  = class userModel {
         try{
 
             // Try to get the users
-            const result = db.query("SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id",'',(err,res) =>{});
+            const result = db.query(`SELECT u.user_id, u.email, u.forname, u.surname,
+            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            FROM users u INNER JOIN carts c ON c.user_id = u.user_id`,'',(err,res) =>{});
         
-
             // Check we have some records
             if(result.rows?.length){
                 return result.rows;
@@ -164,7 +182,10 @@ module.exports  = class userModel {
         try{
             
             // Create the query
-            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE email = $1 AND u.google is null;";
+            const query = `SELECT u.user_id, u.email, u.forname, u.surname,
+            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE email = $1 
+            AND u.google is null;`;
             const values = [this.email];
 
             // Run the query
@@ -192,7 +213,11 @@ module.exports  = class userModel {
         try{
 
             // Create the query
-            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE user_id = $1 AND u.google = null;";
+          
+            const query = `SELECT u.user_id, u.email, u.forname, u.surname,
+            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE user_id = $1 
+            AND u.google = null;`;
             const values = [id];
 
             // Run the query
