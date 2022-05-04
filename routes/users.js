@@ -188,7 +188,9 @@ router.get(
     async (req, res, next) => {
     
     try{
-        const response = await db.query('SELECT * FROM users WHERE user_id = $1',[req.body.userid]);
+        const response = await db.query(`SELECT user_id, email, forename, surname,
+         join_date, last_logon, enabled, roles, avatar_url, google, contact_number 
+         FROM users WHERE user_id = $1`,[req.body.userid]);
         if(response.rowCount === 0){
             const error = new createHttpError(404, "No records were found with the specified parameters");
             return next(error);
@@ -425,8 +427,7 @@ router.get(
     try{
         const response = await db.query(query, [id]);
         if(response.rowCount === 0){
-            const error = new createHttpError(404, "No records were found with the specified parameters");
-            return next(error);
+            res.status(204).json(response.rows)
         }
         res.status(200).json(response.rows);
     } catch(err) {

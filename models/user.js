@@ -20,14 +20,152 @@ module.exports  = class userModel {
         this.cartId = data.cartId || null
     }
 
+    /**
+     * Creates a new entry in the users table for a google ID
+     * @param {object} profile  The returned profile information from google
+     * @returns { object } user The created user
+     */
+    async createGoogleUser(profile){
+
+        /** 
+         * destruct the passed in object for the relevant properties
+         */
+        const {
+            id, email, picture, given_name, family_name
+        } = profile;
+
+        try{
+
+            /** 
+             * Create the vars used for inserting into the DB
+             */
+            const stmt = `INSERT INTO users 
+            (email, password, forename, surname, join_date, roles, google, enabled, avatar_url) 
+            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5, $6, $7, $8) RETURNING *;`;
+
+            const values = [
+                email,
+                this.hashPassword(id),
+                given_name,
+                family_name,
+                'Customer',
+                id,
+                true,
+                picture
+            ];
+
+            /**
+             * Execute the DB statement
+             */
+            const result = await db.query(stmt, values);
+
+            /**
+             * Check we have some records to return
+             */
+            if(result?.rows?.length){
+
+                /**
+                 * Create a cart for the user
+                 */
+                 const cart = new cartModel({ userId: result.rows[0].user_id });
+                 const cartResult = await cart.create();
+
+                 /**
+                  * Generate a new object to send back
+                  */
+                 const user = {
+                     user_id: result.rows[0].user_id,
+                     email: result.rows[0].email,
+                     forename: result.rows[0].forename,
+                     surname: result.rows[0].surname,
+                     join_date: result.rows[0].join_date,
+                     enabled: result.rows[0].enabled,
+                     contact_number: result.rows[0].contact_number,
+                     roles: result.rows[0].roles,
+                     google: result.rows[0].google,
+                     avatar_url: result.rows[0].avatar_url,
+                     cart_id: cartResult.rows[0].cart_id
+                 }
+
+                 return user;
+                 //return result.rows[0];
+            }
+
+            /** 
+             * By default return false
+             */
+            return false
+
+        } catch(error) {
+            throw new Error(error);
+        }
+
+    }
+
+    /**
+     * Find a login via google ID
+     * @param {integer} google_id  The users google ID returned from a google login
+     * @returns {object} user || false  Either the found user data in the DB or false
+     */
+     async findByGoogleId(google_id) {
+
+        try{
+
+            /**
+             * Create the vars for the DB statement
+             */
+            //const stmt = `SELECT * FROM users WHERE google = $1`;
+            const stmt = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE google = $1;";
+            const values = [google_id];
+
+            /**
+             * Run the DB statement
+             */
+            const result = await db.query(stmt, values);
+
+            /**
+             * Check we have a record and if so then return it
+             */
+            if(result?.rows?.length){
+                /**
+                 * Generate a new object to send back and remove the password field
+                 */
+                 const user = {
+                    user_id: result.rows[0].user_id,
+                    email: result.rows[0].email,
+                    forename: result.rows[0].forename,
+                    surname: result.rows[0].surname,
+                    join_date: result.rows[0].join_date,
+                    enabled: result.rows[0].enabled,
+                    contact_number: result.rows[0].contact_number,
+                    roles: result.rows[0].roles,
+                    google: result.rows[0].google,
+                    avatar_url: result.rows[0].avatar_url,
+                    cart_id: result.rows[0].cart_id
+                }
+                return user;
+            }
+
+            /** 
+             * By default return false
+             */
+            return false
+
+        } catch (error) {
+            throw new Error(error);
+        }
+
+    }
+
     // find all users
     async find () {
         try{
 
             // Try to get the users
-            const result = db.query("SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id",'',(err,res) =>{});
+            const result = db.query(`SELECT u.user_id, u.email, u.forname, u.surname,
+            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            FROM users u INNER JOIN carts c ON c.user_id = u.user_id`,'',(err,res) =>{});
         
-
             // Check we have some records
             if(result.rows?.length){
                 return result.rows;
@@ -44,7 +182,10 @@ module.exports  = class userModel {
         try{
             
             // Create the query
-            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE email = $1;";
+            const query = `SELECT u.user_id, u.email, u.forname, u.surname,
+            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE email = $1 
+            AND u.google is null;`;
             const values = [this.email];
 
             // Run the query
@@ -72,7 +213,11 @@ module.exports  = class userModel {
         try{
 
             // Create the query
-            const query = "SELECT u.*, c.cart_id FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE user_id = $1;";
+          
+            const query = `SELECT u.user_id, u.email, u.forname, u.surname,
+            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE user_id = $1 
+            AND u.google = null;`;
             const values = [id];
 
             // Run the query
@@ -155,20 +300,62 @@ module.exports  = class userModel {
         }
     }
 
-    async update (data){
+    /**
+     * 
+     * Set the last login time for a user
+     */
+    async setLastLogin(payload){
+
+        try{
+
+            /**
+             * Extract the required data from the payload
+             */
+            const { user_id, last_logon } = payload;
+
+            /**
+             * Create the query and set the values
+             */
+            const stmt = `UPDATE users set last_logon = $1 WHERE user_id = $2 RETURNING *;`;
+            const values = [last_logon, user_id];
+
+            /**
+             * Run the statement
+             */
+            const result = await db.query(stmt, values);
+
+            /**
+             * Check the result of the update
+             */
+            if(result?.rows?.lenght){
+                return result.rows[0];
+            }
+
+            /** 
+             * By default return null
+             */
+            return null;
+
+        } catch(error) {
+            throw new Error(error);
+        }
+
+    }
+
+    async update(data){
         try{
 
             // Create the query
-            const query = "UPDATE users SET $1 = $2 WHERE user_id = $3 RETURNING *;";
+            const stmt = `UPDATE users SET $1 = $2 WHERE user_id = $3 RETURNING *;`;
             
             // Get the required values
             const { column, value, id } = data;
-                
+           
             // Run the query
-            const result = await db.query(query,[column, value, id],(err, res) => {});
+            const result = await db.query(stmt,[column, value, id]);
 
             // Check we have a record or more
-            if(result.rows.length){
+            if(result?.rows?.length){
                 return result.rows[0];
             }
 

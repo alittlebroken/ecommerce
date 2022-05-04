@@ -3,6 +3,7 @@ const passport = require('passport');
 const localStrategy = require('passport-local').Strategy;
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
+const googleStrategy = require( 'passport-google-oauth2' ).Strategy;
 const userModel = require('../models/user');
 
 // Create a user
@@ -48,7 +49,7 @@ passport.use(
                 
                 const userObj = new userModel({ email: email });
                 const user = await userObj.findByEmail();
-                
+
                 if(!user){
                     return done(null, false, { message: 'user not found'});
                 }
@@ -57,12 +58,65 @@ passport.use(
                 if(!validate){
                     return done(null, false, { message: 'Wrong password'});
                 }
+
                 // Update the last login time
+                const loginDate = new Date();
+                await userObj.setLastLogin({ user_id: user.user_id, last_logon: loginDate.toISOString() });
 
                 return done(null, user, { message: 'Logged in successfully'});
             } catch(error) {
                 return done(error);
             }
+        }
+    )
+);
+
+/**
+ * passport verification for google
+ */
+passport.use(
+    'googleLogin',
+    new googleStrategy(
+        {
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: process.env.GOOGLE_CLIENT_CALLBACK_URL,
+            passReqToCallback: true,
+        },
+        async(request, accessToken, refreshToken, email, profile, done) => {
+
+            /**
+             * Do we already have this google ID stored in the DB
+             */
+            try {
+
+                const userObj = new userModel();
+                const user = await userObj.findByGoogleId(profile.id);
+
+                if(user){
+                    /**
+                     * Return the details found for the user
+                     */
+                    return done(null, user, { message: 'Google account found, logging in' });
+                } else {
+                    /**
+                     * No user found create the account
+                     */
+                    const newUser = await userObj.createGoogleUser(profile);
+                    if(newUser){
+                        /**
+                         * return the new user
+                         */
+                        return done(null, newUser,{ message: 'Adding google auth to internal systems for future use' });
+                    } else {
+                        return done(null, false, { message: 'Unable to use google auth to login' });
+                    }
+                }
+
+            } catch(err) {
+                return done(err);
+            }
+
         }
     )
 );
