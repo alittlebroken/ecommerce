@@ -55,6 +55,8 @@ passport.use(
                     return done(null, false, { message: 'user not found'});
                 }
                 
+                console.log(`\n${user.password}\n`)
+                console.log(`\n${password}\n`)
                 const validate = await userObj.verifyPassword(user.password,password);
                 if(!validate){
                     return done(null, false, { message: 'Wrong password'});
