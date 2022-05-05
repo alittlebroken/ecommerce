@@ -61,9 +61,12 @@ router.post('/', cors(), async (req, res, next) => {
 
     try{
 
-        // Create an instance of the productModel
+        /**
+         * Create an instance of the productModel and ensure
+         * that it is set to lower case
+         */
         const productModelInstance = new productModel({
-            name: terms,
+            name: terms.toLowerCase(),
             category: category
         });
 
