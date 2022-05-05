@@ -162,7 +162,7 @@ router.post('/login/google', async (req, res, next) => {
 
             if(user){
                 // We have found an existing user
-
+                console.log(`\nFOUND EXISTING USER\n`)
                 // Lets build up the body of the token
                 const body = { 
                     _id: user.user_id, 
@@ -181,6 +181,7 @@ router.post('/login/google', async (req, res, next) => {
 
             } else {
                 // Now user was found so we can create one
+                console.log(`\nFOUND NO USER\n`)
                 const newUser = await userObj.createGoogleUser({
                     id: sub,
                     email,
