@@ -203,7 +203,7 @@ module.exports  = class userModel {
                 /**
                  * return the found data
                  */
-                return result.rows[0];
+                return result.rows[0].password;
             }
 
             /**
