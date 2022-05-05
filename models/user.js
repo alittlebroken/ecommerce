@@ -163,7 +163,7 @@ module.exports  = class userModel {
 
             // Try to get the users
             const result = db.query(`SELECT u.user_id, u.email, u.forename, u.surname,
-            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            u.join_date, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
             FROM users u INNER JOIN carts c ON c.user_id = u.user_id`,'',(err,res) =>{});
         
             // Check we have some records
@@ -183,7 +183,7 @@ module.exports  = class userModel {
             
             // Create the query
             const query = `SELECT u.user_id, u.email, u.forename, u.surname,
-            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            u.join_date, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
             FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE email = $1 
             AND u.google is null;`;
             const values = [this.email];
@@ -215,7 +215,7 @@ module.exports  = class userModel {
             // Create the query
           
             const query = `SELECT u.user_id, u.email, u.forename, u.surname,
-            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            u.join_date, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
             FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE user_id = $1 
             AND u.google = null;`;
             const values = [id];
