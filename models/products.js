@@ -118,7 +118,7 @@ module.exports = class productModel {
                 /*
                     Searching all products
                 */
-                stmt = "SELECT * FROM products WHERE name LIKE $1;";
+                stmt = "SELECT * FROM products WHERE LOWER(name) LIKE $1;";
                 values = ['%' + this.name + '%'];
 
             } else if(this.name && this.category) {
@@ -126,7 +126,7 @@ module.exports = class productModel {
                     Search only amongst those products in the specified category
                 */
                 stmt = `SELECT p.* FROM products p INNER JOIN products_categories pc \
-                on p.product_id = pc.product_ID WHERE p.name LIKE $1 AND pc.category_id \
+                on p.product_id = pc.product_ID WHERE LOWER(p.name) LIKE $1 AND pc.category_id \
                 = $2`;
                 values = ['%' + this.name + '%', this.category];
 
