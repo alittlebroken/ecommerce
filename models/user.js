@@ -178,6 +178,44 @@ module.exports  = class userModel {
         }
     }
 
+    /**
+     * Extract the users hashed password from the DB
+     * @param {string} email - Users identifier to extract hashed password from DB
+     * @returns {string} A users hashed password
+     */
+    async getUsersHashedPassword(email){
+
+        try {
+            /**
+             * Generate the sql statement, make sure we exclude all google ids as they 
+             * won't have a password set
+             */
+            const stmt = "SELECT password FROM users WHERE email = $1 AND google is null;";
+            const values = [email];
+
+            /**
+             * Execute the query and check if we have any data returned
+             */
+            const result = db.quaery(stmt, values);
+            if(result.rows?.length){
+
+                /**
+                 * return the found data
+                 */
+                return result.rows[0];
+            }
+
+            /**
+             * Return NULL by default
+             */
+            return null;
+
+        } catch(error) {
+            throw new Error(error);
+        }
+
+    }
+
     async findByEmail (){
         try{
             
