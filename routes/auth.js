@@ -162,7 +162,7 @@ router.post('/login/google', async (req, res, next) => {
 
             if(user){
                 // We have found an existing user
-                console.log(`\nFOUND EXISTING USER\n`)
+                
                 // Lets build up the body of the token
                 const body = { 
                     _id: user.user_id, 
@@ -176,12 +176,12 @@ router.post('/login/google', async (req, res, next) => {
                 // Generate and send back the token
                 const token = await userObj.generateAccessToken({ user: body });
                 await userObj.setLastLogin({ user_id: user.user_id, last_logon: loginDate.toISOString() });
-                console.log(token)
+               
                 return res.json({ token });
 
             } else {
                 // Now user was found so we can create one
-                console.log(`\nFOUND NO USER\n`)
+                
                 const newUser = await userObj.createGoogleUser({
                     id: sub,
                     email,
@@ -206,7 +206,7 @@ router.post('/login/google', async (req, res, next) => {
                     // Generate and send back the token
                     const token = await userObj.generateAccessToken({ user: body });
                     await userObj.setLastLogin({ user_id: newUser.user_id, last_logon: loginDate.toISOString() });
-                    console.log(token)
+                    
                     return res.json({ token });
 
                 }
@@ -367,7 +367,7 @@ router.post('/login', async( req, res, next) => {
                 // Generate and send back the token
                 const userObj = new userModel({});
                 const token = await userObj.generateAccessToken({ user: body });
-                console.log(token)
+                
                 return res.json({ token });
             });
         } catch(error) {
