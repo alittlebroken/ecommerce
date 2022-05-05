@@ -46,7 +46,8 @@ passport.use(
         },
         async (email, password, done) => {
             try{
-                
+                console.log(`\n${email}\n`)
+                console.log(`\n${password}\n`)
                 const userObj = new userModel({ email: email });
                 const user = await userObj.findByEmail();
 
@@ -65,6 +66,7 @@ passport.use(
 
                 return done(null, user, { message: 'Logged in successfully'});
             } catch(error) {
+                console.log(error)
                 return done(error);
             }
         }
