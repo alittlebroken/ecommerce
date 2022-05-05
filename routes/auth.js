@@ -362,6 +362,7 @@ router.post('/login', async( req, res, next) => {
                 // Generate and send back the token
                 const userObj = new userModel({});
                 const token = await userObj.generateAccessToken({ user: body });
+                console.log(token)
                 return res.json({ token });
             });
         } catch(error) {
