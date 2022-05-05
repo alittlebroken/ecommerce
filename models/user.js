@@ -162,8 +162,8 @@ module.exports  = class userModel {
         try{
 
             // Try to get the users
-            const result = db.query(`SELECT u.user_id, u.email, u.forname, u.surname,
-            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            const result = db.query(`SELECT u.user_id, u.email, u.forename, u.surname,
+            u.join_date, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
             FROM users u INNER JOIN carts c ON c.user_id = u.user_id`,'',(err,res) =>{});
         
             // Check we have some records
@@ -178,12 +178,51 @@ module.exports  = class userModel {
         }
     }
 
+    /**
+     * Extract the users hashed password from the DB
+     * @param {string} email - Users identifier to extract hashed password from DB
+     * @returns {string} A users hashed password
+     */
+    async getUsersHashedPassword(email){
+
+        try {
+            /**
+             * Generate the sql statement, make sure we exclude all google ids as they 
+             * won't have a password set
+             */
+            const stmt = "SELECT password FROM users WHERE email = $1 AND google is null;";
+            const values = [email];
+
+            /**
+             * Execute the query and check if we have any data returned
+             */
+            const result = await db.query(stmt, values);
+            
+            if(result.rows?.length){
+
+                /**
+                 * return the found data
+                 */
+                return result.rows[0].password;
+            }
+
+            /**
+             * Return NULL by default
+             */
+            return null;
+
+        } catch(error) {
+            throw new Error(error);
+        }
+
+    }
+
     async findByEmail (){
         try{
             
             // Create the query
-            const query = `SELECT u.user_id, u.email, u.forname, u.surname,
-            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            const query = `SELECT u.user_id, u.email, u.forename, u.surname,
+            u.join_date, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
             FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE email = $1 
             AND u.google is null;`;
             const values = [this.email];
@@ -214,8 +253,8 @@ module.exports  = class userModel {
 
             // Create the query
           
-            const query = `SELECT u.user_id, u.email, u.forname, u.surname,
-            u.join_data, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
+            const query = `SELECT u.user_id, u.email, u.forename, u.surname,
+            u.join_date, u.last_logon, u.enabled, u.contact_number, u.roles, c.cart_id 
             FROM users u INNER JOIN carts c ON c.user_id = u.user_id WHERE user_id = $1 
             AND u.google = null;`;
             const values = [id];

@@ -162,11 +162,13 @@ router.post('/login/google', async (req, res, next) => {
 
             if(user){
                 // We have found an existing user
-
+                
                 // Lets build up the body of the token
                 const body = { 
                     _id: user.user_id, 
                     email: user.email,
+                    forename: user.forename,
+                    surname: user.surname,
                     roles: user.roles,
                     cart: user.cart_id
                 };
@@ -174,10 +176,12 @@ router.post('/login/google', async (req, res, next) => {
                 // Generate and send back the token
                 const token = await userObj.generateAccessToken({ user: body });
                 await userObj.setLastLogin({ user_id: user.user_id, last_logon: loginDate.toISOString() });
+               
                 return res.json({ token });
 
             } else {
                 // Now user was found so we can create one
+                
                 const newUser = await userObj.createGoogleUser({
                     id: sub,
                     email,
@@ -191,15 +195,18 @@ router.post('/login/google', async (req, res, next) => {
 
                     // Lets build up the body of the token
                     const body = { 
-                        _id: newUser.user_id, 
-                        email: newUser.email,
-                        roles: newUser.roles,
-                        cart: newUser.cart_id
+                        _id: user.user_id, 
+                        email: user.email,
+                        forename: user.forename,
+                        surname: user.surname, 
+                        roles: user.roles,
+                        cart: user.cart_id
                     };
 
                     // Generate and send back the token
                     const token = await userObj.generateAccessToken({ user: body });
                     await userObj.setLastLogin({ user_id: newUser.user_id, last_logon: loginDate.toISOString() });
+                    
                     return res.json({ token });
 
                 }
@@ -260,6 +267,8 @@ router.get(
                     const body = { 
                         _id: user.user_id, 
                         email: user.email,
+                        forename: user.forename,
+                        surname: user.surname, 
                         roles: user.roles,
                         cart: user.cart_id
                     };
@@ -349,6 +358,8 @@ router.post('/login', async( req, res, next) => {
                 const body = { 
                     _id: user.user_id, 
                     email: user.email,
+                    forename: user.forename,
+                    surname: user.surname, 
                     roles: user.roles,
                     cart: user.cart_id
                 };
@@ -356,6 +367,7 @@ router.post('/login', async( req, res, next) => {
                 // Generate and send back the token
                 const userObj = new userModel({});
                 const token = await userObj.generateAccessToken({ user: body });
+                
                 return res.json({ token });
             });
         } catch(error) {
