@@ -50,14 +50,15 @@ passport.use(
                 console.log(`\n${password}\n`)
                 const userObj = new userModel({ email: email });
                 const user = await userObj.findByEmail();
+                const userPass = await userObj.getUsersHashedPassword(email);
 
                 if(!user){
                     return done(null, false, { message: 'user not found'});
                 }
                 
-                console.log(`\n${user.password}\n`)
+                console.log(`\n${userPass}\n`)
                 console.log(`\n${password}\n`)
-                const validate = await userObj.verifyPassword(user.password,password);
+                const validate = await userObj.verifyPassword(userPass,password);
                 if(!validate){
                     return done(null, false, { message: 'Wrong password'});
                 }
