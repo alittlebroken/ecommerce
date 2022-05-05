@@ -196,7 +196,7 @@ module.exports  = class userModel {
             /**
              * Execute the query and check if we have any data returned
              */
-            const result = db.quaery(stmt, values);
+            const result = db.query(stmt, values);
             if(result.rows?.length){
 
                 /**
