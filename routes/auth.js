@@ -191,10 +191,12 @@ router.post('/login/google', async (req, res, next) => {
 
                     // Lets build up the body of the token
                     const body = { 
-                        _id: newUser.user_id, 
-                        email: newUser.email,
-                        roles: newUser.roles,
-                        cart: newUser.cart_id
+                        _id: user.user_id, 
+                        email: user.email,
+                        forename: user.forename,
+                        surname: user.surname, 
+                        roles: user.roles,
+                        cart: user.cart_id
                     };
 
                     // Generate and send back the token
@@ -260,6 +262,8 @@ router.get(
                     const body = { 
                         _id: user.user_id, 
                         email: user.email,
+                        forename: user.forename,
+                        surname: user.surname, 
                         roles: user.roles,
                         cart: user.cart_id
                     };
@@ -349,6 +353,8 @@ router.post('/login', async( req, res, next) => {
                 const body = { 
                     _id: user.user_id, 
                     email: user.email,
+                    forename: user.forename,
+                    surname: user.surname, 
                     roles: user.roles,
                     cart: user.cart_id
                 };
