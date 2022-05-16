@@ -10,7 +10,8 @@
   },
   "scripts": {
     "start": "node ./server.js",
-    "test": "jest --silent=false --no-cache --runInBand --detectOpenHandles"
+    "test": "jest --silent=false --no-cache --runInBand --detectOpenHandles",
+    "local": "nodemon ./server.js"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
