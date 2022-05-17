@@ -15,6 +15,7 @@ const text = 'INSERT INTO student(firstname, lastname, age, address, email) VALU
 const values = ['Mona the', 'Octocat', 9, '88 Colin P Kelly Jr St, San Francisco, CA 94107, United States', 'octocat@github.com']
 
 pgclient.query(table, (err, res) => {
+    console.log(err)
     if (err) throw err
 });
 
