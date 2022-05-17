@@ -13,7 +13,7 @@ const text = 'INSERT INTO student(firstname, lastname, age, address, email) VALU
 const values = ['Mona the', 'Octocat', 9, '88 Colin P Kelly Jr St, San Francisco, CA 94107, United States', 'octocat@github.com']
 
 try{
-    const tableResult = pgpool.query(table);
+    const tableResult = await pgpool.query(table);
     console.log(tableResult);
 } catch(error) {
     throw new Error(error);
