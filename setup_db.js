@@ -18,6 +18,7 @@ const values = ['Mona the', 'Octocat', 9, '88 Colin P Kelly Jr St, San Francisco
         const tableResult = await pgpool.query(table);
         console.log(tableResult);
     } catch(error) {
+        console.log(error);
         throw new Error(error);
     }
     
