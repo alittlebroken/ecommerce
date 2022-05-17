@@ -3,14 +3,17 @@ on: [push]
 env:
  CLIENT_URL: http://localhost:3000
  SERVER_URL: http://localhost:5000
- DATABASE_URL: postgres://testdbusr:testpassword@postgres:5432/test
+ DATABASE_URL: ${{ secret.DATABASE_URL }}
  SALT_ROUNDS: 10
- TOKEN_SECRET: testrunner
+ TOKEN_SECRET: ${{ secret.TOKEN_SECRET }}
  TOKEN_EXPIRATION: 1d
- STRIPE_API_KEY: sktest_573457348
- STRIPE_ENDPOINT_SECRET: sktest_2839710234723
+ STRIPE_API_KEY: ${{ secret.STRIPE_API_KEY }}
+ STRIPE_ENDPOINT_SECRET: ${{ secret.STRIPE_ENDPOINT_SECRET }}
  STRIPE_CURRENCY: GBP
- STRIPE_WEBHOOK_SECRET_ORDER: sktest_239048230984
+ STRIPE_WEBHOOK_SECRET_ORDER: ${{ secret.STRIPE_WEBHOOK_SECRET_ORDER }}
+ GOOGLE_CLIENT_ID: ${{ secret.GOOGLE_CLIENT_ID }}
+ GOOGLE_CLIENT_SECRET: ${{ secret.GOOGLE_CLIENT_SECRET }}
+ GOOGLE_CLIENT_CALLBACK_URL: ${{ secret.GOOGLE_CLIENT_CALLBACK_URL }}
 jobs:
   perform-test-run:
     runs-on: ubuntu-latest
@@ -20,7 +23,7 @@ jobs:
         image: postgres
         env:
           POSTGRES_USER: testdbusr
-          POSTGRES_PASSWORD: testpassword
+          POSTGRES_PASSWORD: ${{ secret.DB_PASSWORD }}
           POSTGRES_DB: test
         options: >-
           --health-cmd pg_isready
@@ -41,7 +44,7 @@ jobs:
           POSTGRES_HOST: postgres
           POSTGRES_PORT: 5432
           POSTGRES_USER: testdbusr
-          POSTGRES_PASSWORD: testpassword
+          POSTGRES_PASSWORD: ${{ secret.DB_PASSWORD }}
           POSTGRES_DB: test
       - name: Run tests
         run: npm test
