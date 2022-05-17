@@ -8,24 +8,25 @@ const pgpool = new Pool({
     database: process.env.POSTGRES_DB
 });
 
-await pgpool.connect();
-console.log(pgpool)
-
 const table = 'CREATE TABLE student(id SERIAL PRIMARY KEY, firstName VARCHAR(40) NOT NULL, lastName VARCHAR(40) NOT NULL, age INT, address VARCHAR(80), email VARCHAR(40))'
 const text = 'INSERT INTO student(firstname, lastname, age, address, email) VALUES($1, $2, $3, $4, $5) RETURNING *'
 const values = ['Mona the', 'Octocat', 9, '88 Colin P Kelly Jr St, San Francisco, CA 94107, United States', 'octocat@github.com']
 
-await pgpool.query(table, (err, res) => {
-    console.log(err)
+try{
+    const tableResult = pgpool.query(table);
+    console.log(tableResult);
+} catch(error) {
+    throw new Error(error);
+}
+
+/**
+pgpool.query(text, values, (err, res) => {
     if (err) throw err
 });
 
-await pgpool.query(text, values, (err, res) => {
-    if (err) throw err
-});
-
-await pgpool.query('SELECT * FROM student', (err, res) => {
+pgpool.query('SELECT * FROM student', (err, res) => {
     if (err) throw err
     console.log(err, res.rows) // Print the data in student table
     pgpool.end()
 });
+**/
