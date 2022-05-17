@@ -12,12 +12,16 @@ const table = 'CREATE TABLE student(id SERIAL PRIMARY KEY, firstName VARCHAR(40)
 const text = 'INSERT INTO student(firstname, lastname, age, address, email) VALUES($1, $2, $3, $4, $5) RETURNING *'
 const values = ['Mona the', 'Octocat', 9, '88 Colin P Kelly Jr St, San Francisco, CA 94107, United States', 'octocat@github.com']
 
-try{
-    const tableResult = await pgpool.query(table);
-    console.log(tableResult);
-} catch(error) {
-    throw new Error(error);
-}
+(async () => {
+   
+    try{
+        const tableResult = await pgpool.query(table);
+        console.log(tableResult);
+    } catch(error) {
+        throw new Error(error);
+    }
+    
+})()
 
 /**
 pgpool.query(text, values, (err, res) => {
