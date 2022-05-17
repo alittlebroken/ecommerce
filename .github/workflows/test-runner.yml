@@ -14,6 +14,7 @@ env:
 jobs:
   perform-test-run:
     runs-on: ubuntu-latest
+    container: node:10.18-jessie
     services:
       postgres:
         image: postgres
