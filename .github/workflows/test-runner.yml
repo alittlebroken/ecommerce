@@ -41,5 +41,6 @@ jobs:
           POSTGRES_PORT: 5432
           POSTGRES_USER: testdbuser
           POSTGRES_PASSWORD: textpassword
+          POSTGRES_DB: test
       - name: Run tests
         run: npm test
