@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Create DB
-        run: psql -f db/ecommerce_v6.sql postgresql://testdbusr:${{ secrets.DB_PASSWORD }}@postgres:5432/test
+        run: docker exec -d postgres psql -f db/ecommerce_v6.sql postgresql://testdbusr:${{ secrets.DB_PASSWORD }}@postgres:5432/test
         env:
           POSTGRES_HOST: postgres
           POSTGRES_PORT: 5432
