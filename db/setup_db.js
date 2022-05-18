@@ -51,7 +51,10 @@ const constraintProductsCategoriesProductIdForeignKey = `ALTER TABLE ONLY produc
 const execute = async (statement) => {
 
     await pgclient.query(statement, (err, res) => {
-        if(err) throw err;
+        if(err){
+            console.log(err.stack);
+            throw err;
+        }
 
         if(res?.rows?.length){
             console.log(res.rows);
