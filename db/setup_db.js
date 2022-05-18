@@ -74,6 +74,8 @@ const execute = async (statement) => {
         await execute(tableProductCategories);
         await execute(tableUsers);
 
+        await execute(`SELECT * FROM pg_catalog.pg_tables WHERE schemaname NOT IN('pg_catalog','information_schema');`);
+
 
         pgpool.query(constraintCartsCartId, (err, res) => {
             if (err)
