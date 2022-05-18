@@ -72,7 +72,13 @@ const execute = async (statement) => {
         /**
          * Connect to the DB
          */
-        await pgclient.connect();
+        await pgclient.connect(err => {
+            if(err){
+                console.error('connection error', err.stack);
+            } else {
+                console.log('connected to DB');
+            }
+        });
 
         /**
          * Create tables
