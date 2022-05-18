@@ -69,7 +69,7 @@ const execute = async (statement) => {
         /**
          * Connect to the DB
          */
-        await pglcient.connect();
+        await pgclient.connect();
 
         /**
          * Create tables
