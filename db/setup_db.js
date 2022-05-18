@@ -11,12 +11,12 @@ const pgpool = new Pool({
 /**
  * Sequences
  */
-const cartsIDSeq = 'CREATE SEQUENCE public.carts_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE1;';
+const cartsIDSeq = 'CREATE SEQUENCE carts_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE1;';
 
 /**
  * Tables
  */
-const tableCarts = `CREATE TABLE public.carts(cart_id integer DEFAULT nextval('public.carts_id_seq'::regclass) NOT NULL, user_id integer);`;
+const tableCarts = `CREATE TABLE carts(cart_id integer DEFAULT nextval('public.carts_id_seq'::regclass) NOT NULL, user_id integer);`;
 
 (async () => {
    
