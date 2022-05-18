@@ -52,128 +52,149 @@ const constraintProductsCategoriesProductIdForeignKey = `ALTER TABLE ONLY produc
         /**
          * Create tables
          */
-        await pgpool.query(tableCarts, (err, res) => {
-            if(err) throw err;
+        pgpool.query(tableCarts, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Carts table created.\n`);
         })
 
-        await pgpool.query(tableCartsProducts, (err, res) => {
-            if(err) throw err;
+        pgpool.query(tableCartsProducts, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Carts_Products table created.\n`);
         })
 
-        await pgpool.query(tableCategories, (err, res) => {
-            if(err) throw err;
+        pgpool.query(tableCategories, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Categories table created.\n`);
         })
 
-        await pgpool.query(tableOrders, (err, res) => {
-            if(err) throw err;
+        pgpool.query(tableOrders, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Orders table created.\n`);
         })
 
-        await pgpool.query(tableOrdersProducts, (err, res) => {
-            if(err) throw err;
+        pgpool.query(tableOrdersProducts, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Orders_Products table created.\n`);
         })
 
-        await pgpool.query(tableProducts, (err, res) => {
-            if(err) throw err;
+        pgpool.query(tableProducts, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Products table created.\n`);
         })
 
-        await pgpool.query(tableProductCategories, (err, res) => {
-            if(err) throw err;
+        pgpool.query(tableProductCategories, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Products_Categories table created.\n`);
         })
 
-        await pgpool.query(tableUsers, (err, res) => {
-            if(err) throw err;
+        pgpool.query(tableUsers, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Users table created.\n`);
         })
 
-        await pgpool.query(constraintCartsCartId, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintCartsCartId, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Carts primary key constraint created.\n`);
         })
 
-        await pgpool.query(constraintCartsUserId, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintCartsUserId, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Carts user_id unique key constraint created.\n`);
         })
 
-        await pgpool.query(constraintCategories, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintCategories, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Categories primary key constraint created.\n`);
         })
 
-        await pgpool.query(constraintOrders, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintOrders, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Orders primary key constraint created.\n`);
         })
 
-        await pgpool.query(constraintProducts, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintProducts, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Products primary key constraint created.\n`);
         })
 
-        await pgpool.query(constraintUsersUserId, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintUsersUserId, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Users primary key constraint created.\n`);
         })
 
-        await pgpool.query(constraintUsersEmailKey, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintUsersEmailKey, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Users email unique key constraint created.\n`);
         })
 
-        await pgpool.query(constraintCartsUserForeignKey, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintCartsUserForeignKey, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Carts user_id foreign key constraint created.\n`);
         })
 
-        await pgpool.query(constraintOrdersProductsForeignKey, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintOrdersProductsForeignKey, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Orders_Products order_id foreign key constraint created.\n`);
         })
 
-        await pgpool.query(constraintOrdersProductsUsersForeignKey, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintOrdersProductsUsersForeignKey, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Orders_Products product_id foreign key constraint created.\n`);
         })
 
-        await pgpool.query(constraintOrdersUserIdForeignKey, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintOrdersUserIdForeignKey, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Orders user_id foreign key constraint created.\n`);
         })
 
-        await pgpool.query(constraintProductsCategoriesForeignKey, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintProductsCategoriesForeignKey, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Product_Categories category_id foreign key constraint created.\n`);
         })
 
-        await pgpool.query(constraintProductsCategoriesProductIdForeignKey, (err, res) => {
-            if(err) throw err;
+        pgpool.query(constraintProductsCategoriesProductIdForeignKey, (err, res) => {
+            if (err)
+                throw err;
 
             console.log(`Product_Categories product_id foreign key constraint created.\n`);
         })
@@ -185,11 +206,3 @@ const constraintProductsCategoriesProductIdForeignKey = `ALTER TABLE ONLY produc
     }
     
 })();
-
-/**
-pgpool.query('SELECT * FROM student', (err, res) => {
-    if (err) throw err
-    console.log(err, res.rows) // Print the data in student table
-    pgpool.end()
-});
-**/
