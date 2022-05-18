@@ -30,6 +30,20 @@ avatar_url CHARACTER VARYING);`;
 /**
  * Constraints
  */
+const constraintCartsCartId = `ALTER TABLE carts ADD CONSTRAINT carts_pkey PRIMARY KEY (cart_id);`;
+const constraintCartsUserId = `ALTER TABLE carts ADD CONSTRAINT carts_user_id_key UNIQUE (user_id);`;
+const constraintCategories = `ALTER TABLE categories ADD CONSTRAINT categories_pkey PRIMARY KEY (category_id);`;
+const constraintOrders = `ALTER TABLE orders ADD CONSTRAINT orders_pkey PRIMARY KEY (order_id);`;
+const constraintProducts = `ALTER TABLE products ADD CONSTRAINT products_pkey PRIMARY KEY (product_id);`;
+const constraintUsersUserId = `ALTER TABLE users ADD CONSTRAINT users_pkey PRIMARY KEY (user_id);`;
+const constraintUsersEmailKey = `ALTER TABLE users ADD CONSTRAINT users_email_key UNIQUE (email);`;
+const constraintCartsUserForeignKey = `ALTER TABLE carts ADD CONSTRAINT carts_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(user_id);`;
+const constraintOrdersProductsForeignKey = `ALTER TABLE ONLY orders_products ADD CONSTRAINT orders_products_order_id_fkey FOREIGN KEY (order_id) REFERENCES orders(order_id);`;
+const constraintOrdersProductsUsersForeignKey = `ALTER TABLE ONLY orders_products ADD CONSTRAINT orders_products_product_id_fkey FOREIGN KEY (product_id) REFERENCES products(product_id);`;
+const constraintOrdersUserIdForeignKey = `ALTER TABLE ONLY orders ADD CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(user_id);`;
+const constraintProductsCategoriesForeignKey = `ALTER TABLE ONLY products_categories ADD CONSTRAINT products_categories_category_id_fkey FOREIGN KEY (category_id) REFERENCES categories(category_id);`;
+const constraintProductsCategoriesProductIdForeignKey = `ALTER TABLE ONLY products_categories ADD CONSTRAINT products_categories_product_id_fkey FOREIGN KEY (product_id) REFERENCES products(product_id);`;
+
 
 (async () => {
    
@@ -38,7 +52,6 @@ avatar_url CHARACTER VARYING);`;
         /**
          * Create tables
          */
-        console.log(`\n== Creating Tables ==\n`)
         await pgpool.query(tableCarts, (err, res) => {
             if(err) throw err;
 
@@ -87,7 +100,84 @@ avatar_url CHARACTER VARYING);`;
             console.log(`Users table created.\n`);
         })
 
-        console.log(`\n== Creating Constraints ==\n`)
+        await pgpool.query(constraintCartsCartId, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Carts primary key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintCartsUserId, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Carts user_id unique key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintCategories, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Categories primary key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintOrders, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Orders primary key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintProducts, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Products primary key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintUsersUserId, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Users primary key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintUsersEmailKey, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Users email unique key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintCartsUserForeignKey, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Carts user_id foreign key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintOrdersProductsForeignKey, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Orders_Products order_id foreign key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintOrdersProductsUsersForeignKey, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Orders_Products product_id foreign key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintOrdersUserIdForeignKey, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Orders user_id foreign key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintProductsCategoriesForeignKey, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Product_Categories category_id foreign key constraint created.\n`);
+        })
+
+        await pgpool.query(constraintProductsCategoriesProductIdForeignKey, (err, res) => {
+            if(err) throw err;
+
+            console.log(`Product_Categories product_id foreign key constraint created.\n`);
+        })
+
      
     } catch(error) {
         console.log(error);
