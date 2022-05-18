@@ -27,7 +27,7 @@ const tableCarts = `CREATE TABLE carts(cart_id integer DEFAULT nextval('carts_id
          */
         await pgpool.query(cartsIDSeq, (err, res) => {
             if(err) throw err;
-            conseole.log(`\nCart Sequence Setup\n`)
+            console.log(`\nCart Sequence Setup\n`)
             console.log(res)
         })
 
