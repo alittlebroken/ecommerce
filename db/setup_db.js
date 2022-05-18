@@ -1,6 +1,6 @@
 const { Pool, Client } = require('pg');
 
-const pgpool = new Pool({
+const pgclient = new Client({
     host: process.env.POSTGRES_HOST,
     port: process.env.POSTGRES_PORT,
     user: process.env.POSTGRES_USER,
@@ -50,7 +50,7 @@ const constraintProductsCategoriesProductIdForeignKey = `ALTER TABLE ONLY produc
  */
 const execute = async (statement) => {
 
-    await pgpool.query(statement, (err, res) => {
+    await pgclient.query(statement, (err, res) => {
         if(err) throw err;
 
         if(res?.rows){
@@ -67,6 +67,12 @@ const execute = async (statement) => {
     try{
 
         /**
+         * Connect to the DB
+         */
+        await pclcient.connect();
+         
+
+        /**
          * Create tables
          */
         await execute(tableCarts);
@@ -80,101 +86,11 @@ const execute = async (statement) => {
 
         await execute(`SELECT * FROM pg_catalog.pg_tables WHERE schemaname NOT IN('pg_catalog','information_schema');`);
 
+        pgclient.end();
 
-        pgpool.query(constraintCartsCartId, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Carts primary key constraint created.\n`);
-        })
-
-        pgpool.query(constraintCartsUserId, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Carts user_id unique key constraint created.\n`);
-        })
-
-        pgpool.query(constraintCategories, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Categories primary key constraint created.\n`);
-        })
-
-        pgpool.query(constraintOrders, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Orders primary key constraint created.\n`);
-        })
-
-        pgpool.query(constraintProducts, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Products primary key constraint created.\n`);
-        })
-
-        pgpool.query(constraintUsersUserId, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Users primary key constraint created.\n`);
-        })
-
-        pgpool.query(constraintUsersEmailKey, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Users email unique key constraint created.\n`);
-        })
-
-        pgpool.query(constraintCartsUserForeignKey, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Carts user_id foreign key constraint created.\n`);
-        })
-
-        pgpool.query(constraintOrdersProductsForeignKey, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Orders_Products order_id foreign key constraint created.\n`);
-        })
-
-        pgpool.query(constraintOrdersProductsUsersForeignKey, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Orders_Products product_id foreign key constraint created.\n`);
-        })
-
-        pgpool.query(constraintOrdersUserIdForeignKey, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Orders user_id foreign key constraint created.\n`);
-        })
-
-        pgpool.query(constraintProductsCategoriesForeignKey, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Product_Categories category_id foreign key constraint created.\n`);
-        })
-
-        pgpool.query(constraintProductsCategoriesProductIdForeignKey, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Product_Categories product_id foreign key constraint created.\n`);
-        })
-
-     
     } catch(error) {
         console.log(error);
+        pgclient.end();
         throw new Error(error);
     }
     
