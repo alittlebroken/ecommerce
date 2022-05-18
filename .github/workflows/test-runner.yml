@@ -39,10 +39,8 @@ jobs:
           node-version: '14'
       - name: Install dependencies
         run: npm install
-      - name: Install Postgresql client
-        run: apt-get install -y postgresql-client
       - name: Create DB
-        run: psql -f db/ecommerce_v6.sql postgresql://testdbusr:${{ secrets.DB_PASSWORD }}@postgres:5432/test
+        run: node db/setup_db.js
         env:
           POSTGRES_HOST: postgres
           POSTGRES_PORT: 5432
