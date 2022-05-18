@@ -9,33 +9,21 @@ const pgpool = new Pool({
 });
 
 /**
- * Sequences
- */
-const cartsIDSeq = 'CREATE SEQUENCE carts_id_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;';
-
-/**
  * Tables
  */
-const tableCarts = `CREATE TABLE carts(cart_id integer DEFAULT nextval('carts_id_seq'::regclass) NOT NULL, user_id integer);`;
+const tableCarts = `CREATE TABLE carts(cart_id SERIAL NOT NULL, user_id integer);`;
 
 (async () => {
    
     try{
 
         /**
-         * Create the sequences
-         */
-        await pgpool.query(cartsIDSeq, (err, res) => {
-            if(err) throw err;
-            console.log(`\nCart Sequence Setup\n`)
-            console.log(res)
-        })
-
-        /**
          * Create tables
          */
         await pgpool.query(tableCarts, (err, res) => {
             if(err) throw err;
+
+            console.log(`Carts table created.\n`);
         })
 
      
