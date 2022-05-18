@@ -53,7 +53,7 @@ const execute = async (statement) => {
     await pgclient.query(statement, (err, res) => {
         if(err) throw err;
 
-        if(res?.rows){
+        if(res?.rows?.length){
             console.log(res.rows);
         } else {
             console.log(`${res.command} executed succesfully.`);
@@ -69,8 +69,7 @@ const execute = async (statement) => {
         /**
          * Connect to the DB
          */
-        await pclcient.connect();
-         
+        await pglcient.connect();
 
         /**
          * Create tables
@@ -84,7 +83,27 @@ const execute = async (statement) => {
         await execute(tableProductCategories);
         await execute(tableUsers);
 
+        /**
+         * Double check the tables have been created
+         */
         await execute(`SELECT * FROM pg_catalog.pg_tables WHERE schemaname NOT IN('pg_catalog','information_schema');`);
+
+        /**
+         * Create the contsraints for the tables
+         */
+        await execute(constraintCartsCartId);
+        await execute(constraintCartsUserId);
+        await execute(constraintCategories);
+        await execute(constraintOrders);
+        await execute(constraintProducts);
+        await execute(constraintUsersUserId);
+        await execute(constraintUsersEmailKey);
+        await execute(constraintCartsUserForeignKey);
+        await execute(constraintOrdersProductsForeignKey);
+        await execute(constraintOrdersProductsUsersForeignKey);
+        await execute(constraintOrdersUserIdForeignKey);
+        await execute(constraintProductsCategoriesForeignKey);
+        await execute(constraintProductsCategoriesProductIdForeignKey);
 
         pgclient.end();
 
