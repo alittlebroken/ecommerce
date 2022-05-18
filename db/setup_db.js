@@ -44,6 +44,19 @@ const constraintOrdersUserIdForeignKey = `ALTER TABLE ONLY orders ADD CONSTRAINT
 const constraintProductsCategoriesForeignKey = `ALTER TABLE ONLY products_categories ADD CONSTRAINT products_categories_category_id_fkey FOREIGN KEY (category_id) REFERENCES categories(category_id);`;
 const constraintProductsCategoriesProductIdForeignKey = `ALTER TABLE ONLY products_categories ADD CONSTRAINT products_categories_product_id_fkey FOREIGN KEY (product_id) REFERENCES products(product_id);`;
 
+/**
+ * Runs a sql query against the database
+ * @param {string} statement The SQL statement to run against the database
+ */
+const execute = async (statement) => {
+
+    await pgpool.query(statement, (err, res) => {
+        if(err) throw err;
+
+        console.log(result);
+    })
+
+};
 
 (async () => {
    
@@ -52,61 +65,15 @@ const constraintProductsCategoriesProductIdForeignKey = `ALTER TABLE ONLY produc
         /**
          * Create tables
          */
-        pgpool.query(tableCarts, (err, res) => {
-            if (err)
-                throw err;
+        await execute(tableCarts);
+        await execute(tableCartsProducts);
+        await execute(tableCategories);
+        await execute(tableOrders);
+        await execute(tableOrdersProducts);
+        await execute(tableProducts);
+        await execute(tableProductCategories);
+        await execute(tableUsers);
 
-            console.log(`Carts table created.\n`);
-        })
-
-        pgpool.query(tableCartsProducts, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Carts_Products table created.\n`);
-        })
-
-        pgpool.query(tableCategories, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Categories table created.\n`);
-        })
-
-        pgpool.query(tableOrders, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Orders table created.\n`);
-        })
-
-        pgpool.query(tableOrdersProducts, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Orders_Products table created.\n`);
-        })
-
-        pgpool.query(tableProducts, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Products table created.\n`);
-        })
-
-        pgpool.query(tableProductCategories, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Products_Categories table created.\n`);
-        })
-
-        pgpool.query(tableUsers, (err, res) => {
-            if (err)
-                throw err;
-
-            console.log(`Users table created.\n`);
-        })
 
         pgpool.query(constraintCartsCartId, (err, res) => {
             if (err)
