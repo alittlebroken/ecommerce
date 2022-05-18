@@ -53,7 +53,7 @@ const execute = async (statement) => {
     await pgpool.query(statement, (err, res) => {
         if(err) throw err;
 
-        console.log(result);
+        console.log(res);
     })
 
 };
