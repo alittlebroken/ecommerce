@@ -72,7 +72,7 @@ const execute = async (statement) => {
         /**
          * Connect to the DB
          */
-        await pgclient.connect(err => {
+        pgclient.connect(err => {
             if(err){
                 console.error('connection error', err.stack);
             } else {
@@ -83,14 +83,14 @@ const execute = async (statement) => {
         /**
          * Create tables
          */
-        await execute(tableCarts);
-        await execute(tableCartsProducts);
-        await execute(tableCategories);
-        await execute(tableOrders);
-        await execute(tableOrdersProducts);
-        await execute(tableProducts);
-        await execute(tableProductCategories);
-        await execute(tableUsers);
+        execute(tableCarts);
+        execute(tableCartsProducts);
+        execute(tableCategories);
+        execute(tableOrders);
+        execute(tableOrdersProducts);
+        execute(tableProducts);
+        execute(tableProductCategories);
+        execute(tableUsers);
 
         /**
          * Double check the tables have been created
@@ -100,19 +100,19 @@ const execute = async (statement) => {
         /**
          * Create the contsraints for the tables
          */
-        await execute(constraintCartsCartId);
-        await execute(constraintCartsUserId);
-        await execute(constraintCategories);
-        await execute(constraintOrders);
-        await execute(constraintProducts);
-        await execute(constraintUsersUserId);
-        await execute(constraintUsersEmailKey);
-        await execute(constraintCartsUserForeignKey);
-        await execute(constraintOrdersProductsForeignKey);
-        await execute(constraintOrdersProductsUsersForeignKey);
-        await execute(constraintOrdersUserIdForeignKey);
-        await execute(constraintProductsCategoriesForeignKey);
-        await execute(constraintProductsCategoriesProductIdForeignKey);
+         execute(constraintCartsCartId);
+         execute(constraintCartsUserId);
+         execute(constraintCategories);
+         execute(constraintOrders);
+         execute(constraintProducts);
+         execute(constraintUsersUserId);
+         execute(constraintUsersEmailKey);
+         execute(constraintCartsUserForeignKey);
+         execute(constraintOrdersProductsForeignKey);
+         execute(constraintOrdersProductsUsersForeignKey);
+         execute(constraintOrdersUserIdForeignKey);
+         execute(constraintProductsCategoriesForeignKey);
+         execute(constraintProductsCategoriesProductIdForeignKey);
 
         pgclient.end();
 
