@@ -16,6 +16,44 @@ module.exports = class productModel {
 
     }
 
+    /**
+     * Get a list of the current top 5 products
+     */
+    async getTopFiveProducts(){
+        try{
+
+            /**
+             * Create the statement for retrieving the records
+             */
+            const stmt = `SELECT p.name, op.product_id, count(op.product_id) as total FROM orders_products op INNER JOIN
+            products p GROUP BY p.name, op.product_id ORDER BY total DESC;`;
+
+            /**
+             * Run the statement
+             */
+            const result = await db.query(stmt, '');
+
+            /**
+             * check we have data to return
+             */
+            if(result?.rows?.length){
+               /**
+                * Return the data found
+                */
+               return result.rows;
+            }
+
+            /**
+             * By default return null
+             */
+            return null;
+
+        } catch(error) {
+            throw new Error(err);
+        }
+    }
+
+
     // Find a product by name
     async findByName () {
         try{
