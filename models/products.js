@@ -49,7 +49,7 @@ module.exports = class productModel {
             return null;
 
         } catch(error) {
-            throw new Error(err);
+            throw new Error(error);
         }
     }
 
