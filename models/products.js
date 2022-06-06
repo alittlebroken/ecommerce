@@ -26,7 +26,7 @@ module.exports = class productModel {
              * Create the statement for retrieving the records
              */
             const stmt = `SELECT p.name, op.product_id, count(op.product_id) as total FROM orders_products op INNER JOIN
-            products p GROUP BY p.name, op.product_id ORDER BY total DESC;`;
+            products p ON op.product_id = p.product_id GROUP BY p.name, op.product_id ORDER BY total DESC;`;
 
             /**
              * Run the statement
