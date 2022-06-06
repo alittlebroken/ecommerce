@@ -180,6 +180,54 @@ router.get('/', async (req, res, next) => {
 
 /**
  * @swagger
+ * /products/top5:
+ *   get:
+ *     tags:
+ *       - Products
+ *     description: Get a list of the top 5 popular products
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *        description: Returns an array of products
+ *        schema:
+ *          $ref: '#/definitions/Product'
+ *       404:
+ *         description: no products found
+ */
+router.get('/top5', async (req, res, next) => {
+
+    /**
+     * Get the required data from the DB
+     */
+    try{
+
+        /** 
+         * Get the data
+         */
+        const products = new productModel();
+        const result = await products.getTopFiveProducts();
+
+        /**
+         * Chek we have data to send back
+         */
+        if(result){
+            res.status(200).json(result.rows);
+        } else {
+           res.status(404).json({
+               status: 404,
+               message: 'No products found'
+           });
+        }
+
+    } catch (error) {
+       next(error);
+    }
+
+});
+
+/**
+ * @swagger
  * /products/{productid}:
  *   get:
  *     tags:
