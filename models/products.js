@@ -32,10 +32,11 @@ module.exports = class productModel {
              * Run the statement
              */
             const result = await db.query(stmt, '');
-
+        
             /**
              * check we have data to return
              */
+            
             if(result?.rows?.length){
                /**
                 * Return the data found
