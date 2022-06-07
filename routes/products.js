@@ -212,7 +212,7 @@ router.get('/top5', async (req, res, next) => {
          * Chek we have data to send back
          */
         if(result){
-            res.status(200).json(result.rows);
+            res.status(200).json(result);
         } else {
            res.status(404).json({
                status: 404,
